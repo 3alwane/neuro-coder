@@ -1,25 +1,24 @@
-"use client";
+'use client';
 
-import React from "react";
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
-import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
-import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
-import { useAppContext } from "../ContextApi";
-import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
+import React from 'react';
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
+import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
+import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
+import { useAppContext } from '../ContextApi';
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
 function SideBar() {
   const {
     hideSideBarObject: { hideSideBar },
+    darkModeObject: { darkMode },
   } = useAppContext();
-
-  console.log(hideSideBar);
 
   return (
     <div
-      className={`${
-        hideSideBar ? "w-[130px]" : "w-[295px]"
-      } h-screen p-6 pt-10 relative  bg-white transition-all duration-300`}
+      className={`${hideSideBar ? 'w-[130px]' : 'w-[295px]'} ${
+        darkMode ? 'bg-slate-800' : 'bg-white'
+      }  h-screen p-6 pt-10 relative  transition-all duration-300`}
     >
       <RoundedArrowIcon />
       <Logo />
@@ -37,7 +36,7 @@ function SideBar() {
     return (
       <div
         className={` ${
-          !hideSideBar ? "block" : "hidden"
+          !hideSideBar ? 'block' : 'hidden'
         } p-[18px] rounded-lg shadow-md mt-16 mx-2   bg-gradient-to-r from-red-500 to-pink-600`}
       >
         <h3 className="text-[15px] font-semibold mb-2 text-white ">
@@ -60,11 +59,14 @@ function SideBar() {
   function RoundedArrowIcon() {
     const {
       hideSideBarObject: { setHideSideBar, hideSideBar },
+      darkModeObject: { setDarkMode, darkMode },
     } = useAppContext();
 
     function changeSideBarState() {
       setHideSideBar(!hideSideBar);
     }
+
+    console.log(darkMode);
 
     return (
       <div
@@ -75,9 +77,9 @@ function SideBar() {
           className="bg-gradient-to-r from-red-500 to-pink-600 rounded-full w-[70%] h-[70%] flex items-center justify-center cursor-pointer"
         >
           {!hideSideBar ? (
-            <ArrowForwardIosIcon sx={{ fontSize: 10, color: "white" }} />
+            <ArrowForwardIosIcon sx={{ fontSize: 10, color: 'white' }} />
           ) : (
-            <ArrowBackIosIcon sx={{ fontSize: 10, color: "white" }} />
+            <ArrowBackIosIcon sx={{ fontSize: 10, color: 'white' }} />
           )}
         </div>
       </div>
@@ -146,35 +148,46 @@ function SideBar() {
   function Links() {
     const {
       hideSideBarObject: { hideSideBar },
+      sideBarMenuItemsObject: { sideBarMenuItems, setSideBarMenuItems },
     } = useAppContext();
+
+    function updateMenuItemState(index: number) {
+      //Updating the sideBarMenuItems, and storing the return results in
+      //in the sideBarMenuItemsCopy to ensure immutability
+      const sideBarMenuItemsCopy = sideBarMenuItems.map((singleMenuItem, i) => {
+        if (i === index) {
+          return { ...singleMenuItem, isSelected: true };
+        }
+        return { ...singleMenuItem, isSelected: false };
+      });
+
+      //Updating the sideBarMenuItems to see the result in the UI
+      setSideBarMenuItems(sideBarMenuItemsCopy);
+    }
     return (
       <div
         className={`mt-[153px] ${
-          !hideSideBar ? "ml-8" : "ml-3"
+          !hideSideBar ? 'ml-8' : 'ml-3'
         } flex flex-col gap-2 text-[14px]`}
       >
-        {/* Home Link */}
-        <div
-          className={`p-[7px] rounded-lg flex items-center gap-2 ${
-            !hideSideBar ? "w-[70%]" : " w-[50%]"
-          } bg-gradient-to-r
-        from-red-500 to-pink-600 hover:text-red-500 cursor-pointer text-white`}
-        >
-          <HomeRoundedIcon sx={{ fontSize: 20 }} />
-          {!hideSideBar && <span className="mt-0.5">Home</span>}
-        </div>
-
-        {/* Categories Link */}
-        <div className="p-[7px] rounded-lg flex items-center gap-2 w-[80%] hover:text-red-500 cursor-pointer  text-slate-400">
-          <FlagRoundedIcon sx={{ fontSize: 20 }} />
-          {!hideSideBar && <span className="mt-0.5">Challenges</span>}
-        </div>
-
-        {/* Favorite Link */}
-        <div className="p-[7px] rounded-lg flex items-center gap-2 w-[80%] hover:text-red-500 cursor-pointer text-slate-400">
-          <EmojiEventsRoundedIcon sx={{ fontSize: 20 }} />
-          {!hideSideBar && <span className="mt-0.5">Rewards</span>}
-        </div>
+        {sideBarMenuItems.map((singleMenuItem, index) => (
+          <div
+            key={index}
+            onClick={() => updateMenuItemState(index)}
+            className={`p-[7px] rounded-lg flex items-center gap-2 ${
+              !hideSideBar ? 'w-[70%]' : ' w-[50%]'
+            } ${
+              singleMenuItem.isSelected
+                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
+                : ' text-slate-400 hover:text-red-500'
+            } cursor-pointer`}
+          >
+            {singleMenuItem.icon}
+            {!hideSideBar && (
+              <span className="mt-0.5">{singleMenuItem.name}</span>
+            )}
+          </div>
+        ))}
       </div>
     );
   }
@@ -186,7 +199,7 @@ function SideBar() {
     return (
       <div
         className={`p-[7px] mt-10  ${
-          !hideSideBar ? "ml-8" : "ml-3"
+          !hideSideBar ? 'ml-8' : 'ml-3'
         } text-[14px] rounded-lg flex items-center gap-2 w-[80%] text-slate-400 cursor-pointer hover:text-red-500`}
       >
         <LogoutRoundedIcon sx={{ fontSize: 20 }} />
