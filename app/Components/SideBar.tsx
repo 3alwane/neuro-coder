@@ -1,26 +1,61 @@
-'use client';
+"use client";
 
-import React from 'react';
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
-import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
-import LogoutRoundedIcon from '@mui/icons-material/LogoutRounded';
-import ArrowBackIosIcon from '@mui/icons-material/ArrowBackIos';
-import { useAppContext } from '../ContextApi';
-import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos';
+import React, { useRef, useEffect } from "react";
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import LogoutRoundedIcon from "@mui/icons-material/LogoutRounded";
+import ArrowBackIosIcon from "@mui/icons-material/ArrowBackIos";
+import { useAppContext } from "../ContextApi";
+import ArrowForwardIosIcon from "@mui/icons-material/ArrowForwardIos";
 function SideBar() {
   const {
     hideSideBarObject: { hideSideBar },
     darkModeObject: { darkMode },
+    isMobileViewObject: { isMobileView },
+    openSideBarObject: { openSideBar, setOpenSideBar },
   } = useAppContext();
+
+  const sideBarRef = useRef<HTMLDivElement>(null);
+
+  const isDarkModeString: string =
+    darkMode !== null && darkMode[1].isSelected ? "bg-slate-800" : "bg-white";
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        sideBarRef.current &&
+        !sideBarRef.current.contains(event.target as Node)
+      ) {
+        setOpenSideBar(false);
+      }
+    }
+
+    if (openSideBar) {
+      document.addEventListener("mousedown", handleClickOutside);
+    } else {
+      document.removeEventListener("mousedown", handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [openSideBar, setOpenSideBar]);
 
   return (
     <div
-      className={`${hideSideBar ? 'w-[130px]' : 'w-[295px]'} ${
-        darkMode ? 'bg-slate-800' : 'bg-white'
-      }  h-screen p-6 pt-10 relative  transition-all duration-300`}
+      ref={sideBarRef}
+      className={`${
+        hideSideBar ? "w-[130px]" : "w-[295px]"
+      } ${isDarkModeString}  h-screen p-6 pt-10 ${
+        isMobileView
+          ? openSideBar
+            ? "fixed shadow-lg "
+            : "hidden"
+          : "relative"
+      }  transition-all duration-300 z-50`}
     >
-      <RoundedArrowIcon />
+      {!isMobileView && <RoundedArrowIcon />}
       <Logo />
       <Links />
       <LogOutButton />
@@ -36,7 +71,7 @@ function SideBar() {
     return (
       <div
         className={` ${
-          !hideSideBar ? 'block' : 'hidden'
+          !hideSideBar ? "block" : "hidden"
         } p-[18px] rounded-lg shadow-md mt-16 mx-2   bg-gradient-to-r from-red-500 to-pink-600`}
       >
         <h3 className="text-[15px] font-semibold mb-2 text-white ">
@@ -59,7 +94,6 @@ function SideBar() {
   function RoundedArrowIcon() {
     const {
       hideSideBarObject: { setHideSideBar, hideSideBar },
-      darkModeObject: { setDarkMode, darkMode },
     } = useAppContext();
 
     function changeSideBarState() {
@@ -77,9 +111,9 @@ function SideBar() {
           className="bg-gradient-to-r from-red-500 to-pink-600 rounded-full w-[70%] h-[70%] flex items-center justify-center cursor-pointer"
         >
           {!hideSideBar ? (
-            <ArrowForwardIosIcon sx={{ fontSize: 10, color: 'white' }} />
+            <ArrowForwardIosIcon sx={{ fontSize: 10, color: "white" }} />
           ) : (
-            <ArrowBackIosIcon sx={{ fontSize: 10, color: 'white' }} />
+            <ArrowBackIosIcon sx={{ fontSize: 10, color: "white" }} />
           )}
         </div>
       </div>
@@ -90,13 +124,13 @@ function SideBar() {
       hideSideBarObject: { hideSideBar },
     } = useAppContext();
     return (
-      <div className="flex gap-2 items-center ml-3 mt-3 ">
+      <div className="flex gap-2 items-center ml-3  ">
         <div
-          className={`bg-gradient-to-r from-red-500 to-pink-600 p-[8px] rounded-md`}
+          className={`bg-gradient-to-r from-red-500 to-pink-600 p-[12px] rounded-md`}
         >
           <svg
-            width="24px"
-            height="24px"
+            width="25px"
+            height="25px"
             viewBox="0 0 48 48"
             fill="white"
             xmlns="http://www.w3.org/2000/svg"
@@ -134,7 +168,7 @@ function SideBar() {
           </svg>
         </div>
         {!hideSideBar && (
-          <div className="flex gap-1 text-[22px] ">
+          <div className="flex gap-1 text-[23px] ">
             <span className="font-bold text-transparent bg-clip-text bg-gradient-to-r from-red-500 to-pink-500">
               Neuro
             </span>
@@ -167,19 +201,19 @@ function SideBar() {
     return (
       <div
         className={`mt-[153px] ${
-          !hideSideBar ? 'ml-8' : 'ml-3'
-        } flex flex-col gap-2 text-[14px]`}
+          !hideSideBar ? "ml-8" : "ml-3"
+        } flex flex-col gap-2 text-[16px]`}
       >
         {sideBarMenuItems.map((singleMenuItem, index) => (
           <div
             key={index}
             onClick={() => updateMenuItemState(index)}
             className={`p-[7px] rounded-lg flex items-center gap-2 ${
-              !hideSideBar ? 'w-[70%]' : ' w-[50%]'
+              !hideSideBar ? "w-[70%]" : " w-[50%]"
             } ${
               singleMenuItem.isSelected
-                ? 'bg-gradient-to-r from-red-500 to-pink-600 text-white'
-                : ' text-slate-400 hover:text-red-500'
+                ? "bg-gradient-to-r from-red-500 to-pink-600 text-white"
+                : " text-slate-400 hover:text-red-500"
             } cursor-pointer`}
           >
             {singleMenuItem.icon}
@@ -199,7 +233,7 @@ function SideBar() {
     return (
       <div
         className={`p-[7px] mt-10  ${
-          !hideSideBar ? 'ml-8' : 'ml-3'
+          !hideSideBar ? "ml-8" : "ml-3"
         } text-[14px] rounded-lg flex items-center gap-2 w-[80%] text-slate-400 cursor-pointer hover:text-red-500`}
       >
         <LogoutRoundedIcon sx={{ fontSize: 20 }} />

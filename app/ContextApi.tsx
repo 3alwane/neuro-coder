@@ -1,18 +1,28 @@
-'use client';
+"use client";
 import React, {
   createContext,
   useState,
   ReactNode,
   useContext,
   useEffect,
-} from 'react';
+} from "react";
 
-import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
-import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
-import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
+import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
+import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
+import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
+import LightModeIcon from "@mui/icons-material/LightMode";
+import DarkModeIcon from "@mui/icons-material/DarkMode";
 
 //Define the shape of the sidebar menu
 interface SideBarMenuItem {
+  id: number;
+  name: string;
+  isSelected: boolean;
+  icon: React.ReactNode;
+}
+
+//Define the shape of the dark mode menu
+export interface DarkModeItem {
   id: number;
   name: string;
   isSelected: boolean;
@@ -32,8 +42,17 @@ interface AppState {
     >;
   };
   darkModeObject: {
-    darkMode: boolean | null;
-    setDarkMode: React.Dispatch<React.SetStateAction<boolean | null>>;
+    darkMode: DarkModeItem[] | null;
+    setDarkMode: React.Dispatch<React.SetStateAction<DarkModeItem[] | null>>;
+  };
+  isMobileViewObject: {
+    isMobileView: boolean;
+    setIsMobileView: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+  openSideBarObject: {
+    openSideBar: boolean;
+    setOpenSideBar: React.Dispatch<React.SetStateAction<boolean>>;
   };
 }
 
@@ -51,6 +70,16 @@ const defaultState: AppState = {
   darkModeObject: {
     darkMode: null,
     setDarkMode: () => {},
+  },
+
+  isMobileViewObject: {
+    isMobileView: false,
+    setIsMobileView: () => {},
+  },
+
+  openSideBarObject: {
+    openSideBar: false,
+    setOpenSideBar: () => {},
   },
 };
 
@@ -70,37 +99,69 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [sideBarMenuItems, setSideBarMenuItems] = useState<SideBarMenuItem[]>([
     {
       id: 1,
-      name: 'Home',
+      name: "Home",
       icon: <HomeRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: true,
     },
     {
       id: 2,
-      name: 'Challenges',
+      name: "Challenges",
       icon: <FlagRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: false,
     },
     {
       id: 3,
-      name: 'Rewards',
+      name: "Rewards",
       icon: <EmojiEventsRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: false,
     },
   ]);
   //Dark mode variable
-  const [darkMode, setDarkMode] = useState<boolean | null>(null);
+  const [darkMode, setDarkMode] = useState<DarkModeItem[] | null>(null);
+  const [isMobileView, setIsMobileView] = useState<boolean>(false);
+  const [openSideBar, setOpenSideBar] = useState<boolean>(false);
+
+  //Update the window size
+  useEffect(() => {
+    function handleResize() {
+      setIsMobileView(window.innerWidth <= 640);
+      setOpenSideBar(false);
+    }
+
+    // Initial check
+    handleResize();
+
+    // Event listener for window resize
+    window.addEventListener("resize", handleResize);
+
+    // Cleanup
+    return () => {
+      window.removeEventListener("resize", handleResize);
+    };
+  }, []);
+
+  //This useEffect
+  useEffect(() => {
+    //1- Get the value of is isSideBarHided
+    const getIsSideBarHidedValue =
+      window.localStorage.getItem("isSideBarHided");
+
+    if (getIsSideBarHidedValue !== null && isMobileView === false) {
+      if (getIsSideBarHidedValue === "true") {
+        setHideSideBar(true);
+      }
+
+      if (getIsSideBarHidedValue === "false") {
+        setHideSideBar(false);
+      }
+    }
+  }, [isMobileView]);
 
   //Intialize the hidesidebar state from the local storage from the
   //the isSideBarHided key if it is not null, otherwise it is going to be false
   useEffect(() => {
-    const savedValue = window.localStorage.getItem('isSideBarHided');
+    const savedValue = window.localStorage.getItem("isSideBarHided");
     setHideSideBar(savedValue !== null ? JSON.parse(savedValue) : false);
-  }, []);
-
-  //Intialize the dakMode state from the local storage from the
-  //the isSideBarHided key if it is not null, otherwise it is going to be false
-  useEffect(() => {
-    setDarkMode(true);
   }, []);
 
   //Every time that the hidesidebar state changes, update the key in
@@ -108,13 +169,72 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   //do this only if the hideSidebar is boolean
 
   useEffect(() => {
-    if (typeof hideSideBar === 'boolean') {
-      window.localStorage.setItem(
-        'isSideBarHided',
-        JSON.stringify(hideSideBar),
-      );
+    if (typeof hideSideBar === "boolean") {
+      //Only update the local storage when the isMobileView is false
+      if (isMobileView === false) {
+        window.localStorage.setItem(
+          "isSideBarHided",
+          JSON.stringify(hideSideBar)
+        );
+      }
     }
   }, [hideSideBar]);
+
+  //Intialize the dakMode state from the local storage from the
+  //the isSideBarHided key if it is not null, otherwise it is going to be false
+  useEffect(() => {
+    const darkModeMenu: DarkModeItem[] = [
+      {
+        id: 1,
+        name: "Light",
+        isSelected: true,
+        icon: <LightModeIcon fontSize="small" sx={{ fontSize: "12" }} />,
+      },
+      {
+        id: 2,
+        name: "Dark",
+        isSelected: false,
+        icon: <DarkModeIcon fontSize="small" sx={{ fontSize: "12" }} />,
+      },
+    ];
+
+    const savedValue = window.localStorage.getItem("isDarkMode");
+
+    if (savedValue !== null) {
+      const darkModeMenuUpdate: DarkModeItem[] = darkModeMenu.map(
+        (DarkModeItem) => {
+          if (DarkModeItem.name === "Light") {
+            return { ...DarkModeItem, isSelected: savedValue !== "true" };
+          } else if (DarkModeItem.name === "Dark") {
+            return { ...DarkModeItem, isSelected: savedValue === "true" };
+          }
+          return { ...DarkModeItem };
+        }
+      );
+      console.log("darkModeMenuUpdate");
+
+      setDarkMode(darkModeMenuUpdate);
+    } else {
+      setDarkMode(darkModeMenu);
+    }
+  }, []);
+
+  //Save the isDarkMode value in the local storage
+  useEffect(() => {
+    if (Array.isArray(darkMode) && darkMode !== null) {
+      console.log(darkMode);
+      const selectedDarkMode = darkMode?.find(
+        (darkModeItem) =>
+          darkModeItem.isSelected && darkModeItem.name === "Dark"
+      );
+
+      if (selectedDarkMode) {
+        window.localStorage.setItem("isDarkMode", "true");
+      } else {
+        window.localStorage.setItem("isDarkMode", "false");
+      }
+    }
+  }, [darkMode]);
 
   return (
     <AppContext.Provider
@@ -122,6 +242,8 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         hideSideBarObject: { hideSideBar, setHideSideBar },
         sideBarMenuItemsObject: { sideBarMenuItems, setSideBarMenuItems },
         darkModeObject: { darkMode, setDarkMode },
+        isMobileViewObject: { isMobileView, setIsMobileView },
+        openSideBarObject: { openSideBar, setOpenSideBar },
       }}
     >
       {children}
