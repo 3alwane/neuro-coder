@@ -47,7 +47,7 @@ function SideBar() {
       ref={sideBarRef}
       className={`${
         hideSideBar ? "w-[130px]" : "w-[295px]"
-      } ${isDarkModeString}  h-screen p-6 pt-10 ${
+      } ${isDarkModeString}  min-h-screen p-6 pt-10 ${
         isMobileView
           ? openSideBar
             ? "fixed shadow-lg "

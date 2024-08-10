@@ -93,6 +93,7 @@ function StatisticsBar() {
 
   const {
     darkModeObject: { darkMode },
+    isMobileViewObject: { isMobileView },
   } = useAppContext();
   return (
     <div className=" w-full mt-7 flex flex-col gap-4  ">
@@ -114,16 +115,21 @@ function StatisticsBar() {
               darkMode !== null && darkMode[1].isSelected
                 ? "bg-slate-800"
                 : "bg-white"
-            } p-4 rounded-lg flex gap-4 items-center `}
+            } p-4 rounded-lg flex gap-4 items-center  `}
           >
             {/* Icon */}
-            <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
-              {singleItem.icon}
-            </div>
+            {!isMobileView && (
+              <div className="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                {singleItem.icon}
+              </div>
+            )}
+
             {/* The Numbers */}
             <div className="flex flex-col gap-0">
               <span
                 className={`font-bold text-2xl ${
+                  isMobileView && "text-center"
+                } ${
                   darkMode !== null && darkMode[1].isSelected
                     ? "text-white"
                     : "text-black"
@@ -131,7 +137,11 @@ function StatisticsBar() {
               >
                 {singleItem.counter}
               </span>
-              <span className="text-slate-400 text-[12px]">
+              <span
+                className={`text-slate-400 text-[12px] ${
+                  isMobileView && "text-center"
+                } `}
+              >
                 {singleItem.name}
               </span>
             </div>

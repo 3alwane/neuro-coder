@@ -4,6 +4,8 @@ import React from "react";
 import TopBar from "./TopBar";
 import { useAppContext } from "../ContextApi";
 import StatisticsBar from "./StatisticsBar";
+import OnGoingChallenges from "./OnGoingChallenges";
+import Achievements from "./Achievements";
 
 function ContentArea() {
   const {
@@ -25,6 +27,8 @@ function ContentArea() {
 
       <TopBar />
       <StatisticsBar />
+      <OnGoingChallenges />
+      <Achievements />
     </div>
   );
 }
