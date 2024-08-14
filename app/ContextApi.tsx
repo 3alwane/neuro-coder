@@ -12,6 +12,9 @@ import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
 import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
 import LightModeIcon from "@mui/icons-material/LightMode";
 import DarkModeIcon from "@mui/icons-material/DarkMode";
+import ContentArea from "./Components/ContentArea";
+import ChallengesArea from "./ChallengesArea";
+import AchievementsArea from "./AchievementsArea";
 
 //Define the shape of the sidebar menu
 interface SideBarMenuItem {
@@ -19,6 +22,7 @@ interface SideBarMenuItem {
   name: string;
   isSelected: boolean;
   icon: React.ReactNode;
+  component: React.ReactNode;
 }
 
 //Define the shape of the dark mode menu
@@ -27,6 +31,30 @@ export interface DarkModeItem {
   name: string;
   isSelected: boolean;
   icon: React.ReactNode;
+}
+
+interface DifficultyDropDownPosition {
+  left: number;
+  top: number;
+}
+
+export interface DifficultyChoice {
+  id: number;
+  title: string;
+  isSelected: boolean;
+  textColor: string;
+}
+
+export interface LanguageItem {
+  id: number;
+  name: string;
+  isSelected: boolean;
+}
+
+export interface StatusItem {
+  id: number;
+  name: string;
+  isSelected: boolean;
 }
 
 // Define the shape of the context state
@@ -53,6 +81,42 @@ interface AppState {
   openSideBarObject: {
     openSideBar: boolean;
     setOpenSideBar: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+  difficultyDropDownObject: {
+    difficultyDropDownPositions: DifficultyDropDownPosition;
+    setDifficultyDropDownPositions: React.Dispatch<
+      React.SetStateAction<DifficultyDropDownPosition>
+    >;
+  };
+
+  languagesDropDownPositionsObject: {
+    languagesDropDownPositions: DifficultyDropDownPosition;
+    setLanguagesDropDownPositions: React.Dispatch<
+      React.SetStateAction<DifficultyDropDownPosition>
+    >;
+  };
+
+  difficultyChoicesObject: {
+    difficultyChoices: DifficultyChoice[];
+    setDifficultyChoices: React.Dispatch<
+      React.SetStateAction<DifficultyChoice[]>
+    >;
+  };
+
+  languagesArrayObject: {
+    languagesArray: LanguageItem[];
+    setLanguagesArray: React.Dispatch<React.SetStateAction<LanguageItem[]>>;
+  };
+  statusArrayObject: {
+    statusArray: StatusItem[];
+    setStatusArray: React.Dispatch<React.SetStateAction<StatusItem[]>>;
+  };
+
+  statusDropDownPositionsObject: {
+    statusDropDownPositions: DifficultyDropDownPosition;
+    setStatusDropDownPositions: React.Dispatch<
+      React.SetStateAction<DifficultyDropDownPosition>
+    >;
   };
 }
 
@@ -81,6 +145,32 @@ const defaultState: AppState = {
     openSideBar: false,
     setOpenSideBar: () => {},
   },
+  difficultyDropDownObject: {
+    difficultyDropDownPositions: { left: 0, top: 0 },
+    setDifficultyDropDownPositions: () => {},
+  },
+
+  languagesDropDownPositionsObject: {
+    languagesDropDownPositions: { left: 0, top: 0 },
+    setLanguagesDropDownPositions: () => {},
+  },
+
+  difficultyChoicesObject: {
+    difficultyChoices: [],
+    setDifficultyChoices: () => {},
+  },
+  languagesArrayObject: {
+    languagesArray: [],
+    setLanguagesArray: () => {},
+  },
+  statusArrayObject: {
+    statusArray: [],
+    setStatusArray: () => {},
+  },
+  statusDropDownPositionsObject: {
+    statusDropDownPositions: { left: 0, top: 0 },
+    setStatusDropDownPositions: () => {},
+  },
 };
 
 // Create the context with default values
@@ -101,25 +191,62 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       id: 1,
       name: "Home",
       icon: <HomeRoundedIcon sx={{ fontSize: 20 }} />,
-      isSelected: true,
+      isSelected: false,
+      component: <ContentArea />,
     },
     {
       id: 2,
       name: "Challenges",
       icon: <FlagRoundedIcon sx={{ fontSize: 20 }} />,
-      isSelected: false,
+      isSelected: true,
+      component: <ChallengesArea />,
     },
     {
       id: 3,
       name: "Rewards",
       icon: <EmojiEventsRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: false,
+      component: <AchievementsArea />,
     },
   ]);
   //Dark mode variable
   const [darkMode, setDarkMode] = useState<DarkModeItem[] | null>(null);
   const [isMobileView, setIsMobileView] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
+  const [openLanguageDropDown, setOpenLanguageDropDown] =
+    useState<boolean>(false);
+  const [difficultyDropDownPositions, setDifficultyDropDownPositions] =
+    useState({
+      left: 0,
+      top: 0,
+    });
+
+  const [difficultyChoices, setDifficultyChoices] = useState([
+    { id: 1, title: "Easy", isSelected: true, textColor: "text-green-600" },
+    { id: 2, title: "Medium", isSelected: false, textColor: "text-yellow-500" },
+    { id: 3, title: "Hard", isSelected: false, textColor: "text-red-500" },
+  ]);
+
+  //Array of languages
+  const [languagesArray, setLanguagesArray] = useState([
+    { id: 1, name: "Javascript", isSelected: true },
+    { id: 2, name: "Python", isSelected: false },
+    { id: 3, name: "Go", isSelected: false },
+  ]);
+
+  const [statusArray, setStatusArray] = useState([
+    { id: 1, name: "Solved", isSelected: true },
+    { id: 2, name: "Unsolved", isSelected: false },
+  ]);
+
+  const [languagesDropDownPositions, setLanguagesDropDownPositions] = useState({
+    left: 0,
+    top: 0,
+  });
+  const [statusDropDownPositions, setStatusDropDownPositions] = useState({
+    left: 0,
+    top: 0,
+  });
 
   //Update the window size
   useEffect(() => {
@@ -236,6 +363,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     }
   }, [darkMode]);
 
+  useEffect(() => {
+    setOpenSideBar(false);
+  }, [sideBarMenuItems]);
+
   return (
     <AppContext.Provider
       value={{
@@ -244,6 +375,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         darkModeObject: { darkMode, setDarkMode },
         isMobileViewObject: { isMobileView, setIsMobileView },
         openSideBarObject: { openSideBar, setOpenSideBar },
+        difficultyDropDownObject: {
+          difficultyDropDownPositions,
+          setDifficultyDropDownPositions,
+        },
+        difficultyChoicesObject: { difficultyChoices, setDifficultyChoices },
+        languagesArrayObject: { languagesArray, setLanguagesArray },
+        languagesDropDownPositionsObject: {
+          languagesDropDownPositions,
+          setLanguagesDropDownPositions,
+        },
+        statusArrayObject: { statusArray, setStatusArray },
+        statusDropDownPositionsObject: {
+          statusDropDownPositions,
+          setStatusDropDownPositions,
+        },
       }}
     >
       {children}

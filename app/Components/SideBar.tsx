@@ -46,7 +46,7 @@ function SideBar() {
     <div
       ref={sideBarRef}
       className={`${
-        hideSideBar ? "w-[130px]" : "w-[295px]"
+        hideSideBar ? "w-[130px]" : "w-[330px]"
       } ${isDarkModeString}  min-h-screen p-6 pt-10 ${
         isMobileView
           ? openSideBar
@@ -99,8 +99,6 @@ function SideBar() {
     function changeSideBarState() {
       setHideSideBar(!hideSideBar);
     }
-
-    console.log(darkMode);
 
     return (
       <div

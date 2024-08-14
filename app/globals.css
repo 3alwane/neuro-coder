@@ -38,11 +38,9 @@ body {
 }
 
 .mySwiper .swiper-slide {
-  width: 300px; /* Make sure width is auto */
+  width: 310px; /* Make sure width is auto */
   padding: 6px;
-  padding-left: 5px;
-  padding-right: 5px;
-  /* background-color: #6b21a8; Example background color */
+
   user-select: none;
   cursor: pointer;
   border-radius: 8px; /* Example border radius */

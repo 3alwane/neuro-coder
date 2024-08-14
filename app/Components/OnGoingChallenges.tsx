@@ -15,6 +15,7 @@ import "swiper/css/pagination";
 // import required modules
 import { FreeMode } from "swiper/modules";
 import { useAppContext } from "../ContextApi";
+import SingleChallengeCard from "./SingleChallengeCard";
 
 function OnGoingChallenges() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -23,6 +24,7 @@ function OnGoingChallenges() {
     darkModeObject: { darkMode },
     hideSideBarObject: { hideSideBar },
   } = useAppContext();
+  const mockData = [1];
 
   const calculateMaxWidth = () => {
     const windowWidth = document.documentElement.clientWidth;
@@ -69,120 +71,60 @@ function OnGoingChallenges() {
           On Going Challenges
         </span>
       </div>
-      <div style={{ maxWidth }}>
-        <Swiper
-          slidesPerView="auto"
-          spaceBetween={4}
-          freeMode={true}
-          className="mySwiper"
-          modules={[FreeMode]}
-        >
-          {[1, 2, 3, 4, 5, 6, 7].map((index) => (
-            <SwiperSlide key={index} className="w-[3000px]">
-              <SingleChallengeCard />
-            </SwiperSlide>
-          ))}
-        </Swiper>
+      <div style={{ maxWidth }} className="mt-1">
+        {mockData.length === 0 ? (
+          <OnGoingChallengesEmptyScreen />
+        ) : (
+          <Swiper
+            slidesPerView="auto"
+            spaceBetween={4}
+            freeMode={true}
+            className="mySwiper"
+            modules={[FreeMode]}
+          >
+            {[1, 2, 3, 4, 5, 6, 7].map((index) => (
+              <SwiperSlide key={index} className="w-[3000px]">
+                <SingleChallengeCard />
+              </SwiperSlide>
+            ))}
+          </Swiper>
+        )}
       </div>
     </div>
   );
-
-  function SingleChallengeCard() {
-    return (
-      <div
-        className={` ${
-          darkMode !== null && darkMode[1].isSelected
-            ? "text-white bg-slate-800"
-            : "bg-white"
-        }  rounded-lg p-6 flex flex-col `}
-      >
-        {/*Header*/}
-        <div className="flex justify-between">
-          {/*--Icon--*/}
-          <div className="bg-gradient-to-r from-red-500 to-pink-600 p-[11px] rounded-lg  ">
-            <SiPython size={21} className="text-[12px] text-white" />
-          </div>
-          {/*--Dots Button--*/}
-          <div className=" cursor-pointer hover:bg-slate-100 h-7 w-7 flex items-center justify-center  rounded-full">
-            <svg
-              fill="gray"
-              width="15px"
-              height="15px"
-              viewBox="0 0 1920 1920"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                d="M960 1468.235c93.448 0 169.412 75.965 169.412 169.412 0 93.448-75.964 169.412-169.412 169.412-93.448 0-169.412-75.964-169.412-169.412 0-93.447 75.964-169.412 169.412-169.412Zm0-677.647c93.448 0 169.412 75.964 169.412 169.412 0 93.448-75.964 169.412-169.412 169.412-93.448 0-169.412-75.964-169.412-169.412 0-93.448 75.964-169.412 169.412-169.412Zm0-677.647c93.448 0 169.412 75.964 169.412 169.412 0 93.447-75.964 169.412-169.412 169.412-93.448 0-169.412-75.965-169.412-169.412 0-93.448 75.964-169.412 169.412-169.412Z"
-                fill-rule="evenodd"
-              />
-            </svg>
-          </div>
-        </div>
-        {/*--Title--*/}
-        <div className="mt-[23px]">
-          <div className="flex gap-2 items-center">
-            <h2 className="font-bold text-lg cursor-pointer hover:text-red-500">
-              Even Numbers
-            </h2>
-            {/*--done Icon--*/}
-            <div className="bg-slate-100 flex items-center justify-center w-5 h-5 rounded-full">
-              <svg
-                width="14px"
-                height="14px"
-                viewBox="0 0 24 24"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-              >
-                <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                <g
-                  id="SVGRepo_tracerCarrier"
-                  stroke-linecap="round"
-                  stroke-linejoin="round"
-                ></g>
-                <g id="SVGRepo_iconCarrier">
-                  {" "}
-                  <path
-                    fill-rule="evenodd"
-                    clip-rule="evenodd"
-                    d="M19.7071 6.29289C20.0976 6.68342 20.0976 7.31658 19.7071 7.70711L10.4142 17C9.63316 17.7811 8.36683 17.781 7.58579 17L3.29289 12.7071C2.90237 12.3166 2.90237 11.6834 3.29289 11.2929C3.68342 10.9024 4.31658 10.9024 4.70711 11.2929L9 15.5858L18.2929 6.29289C18.6834 5.90237 19.3166 5.90237 19.7071 6.29289Z"
-                    fill="#b8b8b8"
-                  ></path>{" "}
-                </g>
-              </svg>
-            </div>
-          </div>
-
-          <div className="flex gap-2 mt-1">
-            <span className="bg-green-100 text-green-500 rounded-lg p-[3px] text-[11px] px-3 ">
-              Easy
-            </span>
-            <span className="bg-red-100 text-red-500 rounded-lg p-[3px] text-[11px] px-3 ">
-              Arrays
-            </span>
-          </div>
-        </div>
-        {/*--Description--*/}
-        <div className="mt-2">
-          <p className="text-slate-500 text-[12px] mt-[14px]">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit. Mollitia
-            nam ad non, ...
-          </p>
-        </div>
-        {/*--Tags--*/}
-        <div className="flex gap-2 items-center mt-6">
-          <div className="flex text-[12px] gap-2 items-center flex-wrap">
-            <p className="text-[12px] text-slate-500">Tags:</p>
-            <p className="bg-red-100 px-[7px] p-[3px] rounded-md text-red-500 select-none">
-              Tag1
-            </p>
-            <p className="bg-red-100 px-[7px] p-[3px] rounded-md text-red-500 select-none">
-              Tag2
-            </p>
-          </div>
-        </div>
-      </div>
-    );
-  }
 }
 
 export default OnGoingChallenges;
+
+export function OnGoingChallengesEmptyScreen() {
+  const {
+    darkModeObject: { darkMode },
+  } = useAppContext();
+  return (
+    <div
+      className={`${
+        darkMode !== null && darkMode[1].isSelected ? "text-white" : ""
+      } p-1 gap-5 flex flex-col  justify-center pt-[53px] pb-8    items-center`}
+    >
+      <svg
+        fill="#94a3b8"
+        width="94px"
+        height="94px"
+        viewBox="0 0 24 24"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M20.49,7.52a.19.19,0,0,1,0-.08.17.17,0,0,1,0-.07l0-.09-.06-.15,0,0h0l0,0,0,0a.48.48,0,0,0-.09-.11l-.09-.08h0l-.05,0,0,0L16.26,4.45h0l-3.72-2.3A.85.85,0,0,0,12.25,2h-.08a.82.82,0,0,0-.27,0h-.1a1.13,1.13,0,0,0-.33.13L4,6.78l-.09.07-.09.08L3.72,7l-.05.06,0,0-.06.15,0,.09v.06a.69.69,0,0,0,0,.2v8.73a1,1,0,0,0,.47.85l7.5,4.64h0l0,0,.15.06.08,0a.86.86,0,0,0,.52,0l.08,0,.15-.06,0,0h0L20,17.21a1,1,0,0,0,.47-.85V7.63S20.49,7.56,20.49,7.52ZM12,4.17l1.78,1.1L8.19,8.73,6.4,7.63Zm-1,15L5.5,15.81V9.42l5.5,3.4Zm1-8.11L10.09,9.91l5.59-3.47L17.6,7.63Zm6.5,4.72L13,19.2V12.82l5.5-3.4Z" />
+      </svg>
+
+      <div className="">
+        <h3 className="font-semibold text-[14px] mb-1 text-center ">{` No Ongoing Challenges`}</h3>
+        <p className="text-gray-400  w-64 text-center text-[12px]">
+          {`You haven't started any challenges yet. Begin your first challenge now!`}
+        </p>
+      </div>
+      <button className="bg-gradient-to-r from-red-500 to-pink-600 p-2 rounded-md text-white text-center text-[12px] px-4">
+        Start New Challenge
+      </button>
+    </div>
+  );
+}
