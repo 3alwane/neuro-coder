@@ -392,7 +392,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [filterByStatus, setFilterByStatus] = useState<string>("");
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [filterByTags, setFilterByTags] = useState<string[]>([]);
-  const [openChallengeWindow, setOpenChallengeWindow] = useState(false);
+  const [openChallengeWindow, setOpenChallengeWindow] = useState(true);
 
   //Simulate the fetching of allChallenges Data from the database
   useEffect(() => {
