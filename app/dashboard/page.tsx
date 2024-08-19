@@ -5,10 +5,15 @@ import ContentArea from "../Components/ContentArea";
 import { useAppContext } from "../ContextApi";
 import ChallengesArea from "../ChallengesArea";
 import AchievementsArea from "../AchievementsArea";
+import ChallengeDropDown from "../Components/dropDowns/ChallengeDropDown";
+import TagWindow from "../Components/Windows/TagWindow";
+import ChallengeWindow from "../Components/Windows/ChallengeWindow";
 
 function Page() {
   const {
     sideBarMenuItemsObject: { sideBarMenuItems },
+    openTagsWindowObject: { openTagsWindow },
+    openChallengeWindowObject: { openChallengeWindow },
   } = useAppContext();
 
   const selectedComponent =
@@ -16,6 +21,13 @@ function Page() {
 
   return (
     <div className="poppins flex bg-slate-50 ">
+      <ChallengeWindow />
+      <ChallengeDropDown />
+      {openTagsWindow ||
+        (openChallengeWindow && (
+          <div className="w-full h-full bg-black opacity-15 fixed top-0 left-0 z-[80]"></div>
+        ))}
+
       <SideBar />
       {selectedComponent}
     </div>

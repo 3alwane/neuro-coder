@@ -3,7 +3,7 @@
 import { useAppContext } from "@/app/ContextApi";
 import React, { useState, useRef, useEffect } from "react";
 import CheckIcon from "@mui/icons-material/Check";
-import { FilterButton } from "@/app/ChallengesArea";
+import { FilterButton, useChallengesAreaContext } from "@/app/ChallengesArea";
 import { DifficultyChoice } from "@/app/ContextApi";
 function DifficultyDropDown({
   filterButtons,
@@ -19,6 +19,7 @@ function DifficultyDropDown({
       setDifficultyDropDownPositions,
     },
     difficultyChoicesObject: { difficultyChoices, setDifficultyChoices },
+    filterByDifficultyObject: { setFilterByDifficulty },
   } = useAppContext();
 
   const darkModeString =
@@ -30,6 +31,7 @@ function DifficultyDropDown({
     const updatedDifficultyChoice: DifficultyChoice[] = difficultyChoices.map(
       (singleDifficulty, i) => {
         if (index === i) {
+          setFilterByDifficulty(singleDifficulty.title);
           return { ...singleDifficulty, isSelected: true };
         }
         return { ...singleDifficulty, isSelected: false };
@@ -70,7 +72,7 @@ function DifficultyDropDown({
       resetTheFilterButtonsArray();
     }
 
-    if (filterButtons[1].isOpened) {
+    if (filterButtons[2].isOpened) {
       document.addEventListener("mousedown", handleClickOutside);
       // Handle window resize
       window.addEventListener("resize", closeTheDropDown);

@@ -16,6 +16,8 @@ import "swiper/css/pagination";
 import { FreeMode } from "swiper/modules";
 import { useAppContext } from "../ContextApi";
 import SingleChallengeCard from "./SingleChallengeCard";
+import CircularProgress from "@mui/material/CircularProgress";
+import ChallengeDropDown from "./dropDowns/ChallengeDropDown";
 
 function OnGoingChallenges() {
   const containerRef = useRef<HTMLDivElement | null>(null);
@@ -23,8 +25,13 @@ function OnGoingChallenges() {
   const {
     darkModeObject: { darkMode },
     hideSideBarObject: { hideSideBar },
+    allChallengesObject: { allChallenges, setAllChallenges },
+    isLoadingObject: { isLoading, setIsLoading },
+    openChallengeDropDownObject: {
+      openChallengeDropDown,
+      setOpenChallengeDropDown,
+    },
   } = useAppContext();
-  const mockData = [1];
 
   const calculateMaxWidth = () => {
     const windowWidth = document.documentElement.clientWidth;
@@ -36,6 +43,11 @@ function OnGoingChallenges() {
       setMaxWidth(`${Math.floor(calculatedWidth)}px`);
     }
   };
+
+  //Filter out the challenges that there are on going by relying on the isGoing property
+  const filterByOnGoing = allChallenges.filter(
+    (SingleChallenge) => SingleChallenge.isOnGoing
+  );
 
   useEffect(() => {
     calculateMaxWidth(); // Initial calculation
@@ -58,8 +70,15 @@ function OnGoingChallenges() {
     };
   }, []);
 
+  function handleSwiperClick(e: React.MouseEvent) {
+    if (openChallengeDropDown) {
+      setOpenChallengeDropDown(false);
+    }
+  }
+
   return (
     <div ref={containerRef} className="w-full mt-9 flex flex-col gap-2">
+      <ChallengeDropDown />
       <div className="flex gap-4 items-center">
         <span
           className={`font-bold text-[19px] text-gray-900 ${
@@ -71,25 +90,33 @@ function OnGoingChallenges() {
           On Going Challenges
         </span>
       </div>
-      <div style={{ maxWidth }} className="mt-1">
-        {mockData.length === 0 ? (
-          <OnGoingChallengesEmptyScreen />
-        ) : (
-          <Swiper
-            slidesPerView="auto"
-            spaceBetween={4}
-            freeMode={true}
-            className="mySwiper"
-            modules={[FreeMode]}
-          >
-            {[1, 2, 3, 4, 5, 6, 7].map((index) => (
-              <SwiperSlide key={index} className="w-[3000px]">
-                <SingleChallengeCard />
-              </SwiperSlide>
-            ))}
-          </Swiper>
-        )}
-      </div>
+
+      {isLoading ? (
+        <div className="w-full  gap-4 items-center justify-center h-[270px] flex flex-col">
+          <CircularProgress sx={{ color: "red" }} />
+          <p className="text-[14px] text-slate-500">Loading...</p>
+        </div>
+      ) : (
+        <div onClick={handleSwiperClick} style={{ maxWidth }} className="mt-1">
+          {filterByOnGoing.length === 0 ? (
+            <OnGoingChallengesEmptyScreen />
+          ) : (
+            <Swiper
+              slidesPerView="auto"
+              spaceBetween={4}
+              freeMode={true}
+              className="mySwiper"
+              modules={[FreeMode]}
+            >
+              {filterByOnGoing.map((singleCard, index) => (
+                <SwiperSlide key={index} className="w-[3000px]">
+                  <SingleChallengeCard singleChallenge={singleCard} />
+                </SwiperSlide>
+              ))}
+            </Swiper>
+          )}
+        </div>
+      )}
     </div>
   );
 }

@@ -1,16 +1,119 @@
 import React from "react";
 import SingleChallengeCard from "../SingleChallengeCard";
 import { useAppContext } from "@/app/ContextApi";
+import CircularProgress from "@mui/material/CircularProgress";
+import { useChallengesAreaContext } from "@/app/ChallengesArea";
+import SearchOffIcon from "@mui/icons-material/SearchOff";
+import StyleIcon from "@mui/icons-material/Style";
 
 function AllChallenges() {
-  const mockData = [];
+  const {
+    allChallengesObject: { allChallenges, setAllChallenges },
+    isLoadingObject: { isLoading },
+    filterByDifficultyObject: { filterByDifficulty },
+    filterByStatusObject: { filterByStatus },
+    filterByLanguageObject: { filterByLanguage },
+    filterByTagsObject: { filterByTags },
+  } = useAppContext();
+
+  const { challengeSearchInput } = useChallengesAreaContext();
+
+  const filterChallengesBySearch = allChallenges.filter((singleChallenge) =>
+    singleChallenge.title
+      .toLowerCase()
+      .includes(challengeSearchInput.toLocaleLowerCase())
+  );
+
+  //Assign the filterChallengesBySearch to the applyTheFilters variable
+  let applyTheFilters = filterChallengesBySearch;
+
+  //Apply the filter by difficulty
+  if (filterByDifficulty !== "") {
+    applyTheFilters = applyTheFilters.filter(
+      (challenge) =>
+        challenge.difficulty.toLowerCase() === filterByDifficulty.toLowerCase()
+    );
+  }
+
+  //Apply the filter by status
+  if (filterByStatus !== "") {
+    applyTheFilters = applyTheFilters.filter((challenge) => {
+      if (filterByStatus.toLowerCase() === "Solved".toLowerCase()) {
+        return challenge.isSolved;
+      } else if (filterByStatus.toLowerCase() === "UnSolved".toLowerCase()) {
+        return challenge.isSolved === false;
+      }
+    });
+  }
+
+  //Apply the filter by language
+
+  if (filterByLanguage !== "") {
+    applyTheFilters = applyTheFilters.filter((challenge) => {
+      if (filterByLanguage.toLowerCase() === "javascript") {
+        return challenge.language === "javascript";
+      }
+
+      if (filterByLanguage.toLowerCase() === "python") {
+        return challenge.language === "python";
+      }
+
+      if (filterByLanguage.toLowerCase() === "go") {
+        return challenge.language === "go";
+      }
+    });
+  }
+
+  if (filterByTags.length > 0) {
+    applyTheFilters = applyTheFilters.filter((challenge) => {
+      // Check if the challenge has all the tags in filterByTags (using `every`)
+      const hasAllTags = filterByTags.every((tag) =>
+        challenge.tags.includes(tag)
+      );
+
+      // Check if the challenge has at least one tag in filterByTags (using `some`)
+      const hasSomeTags = filterByTags.some((tag) =>
+        challenge.tags.includes(tag)
+      );
+
+      // Return true if the challenge meets both conditions
+      return hasAllTags && hasSomeTags;
+    });
+  }
+
+  if (isLoading) {
+    return (
+      <div className="w-full  gap-4 items-center justify-center h-[570px] flex flex-col">
+        <CircularProgress sx={{ color: "red" }} />
+        <p className="text-[14px] text-slate-500">Loading...</p>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full">
-      {mockData.length !== 0 ? (
+      {allChallenges.length !== 0 ? (
         <div className="mt-6 flex flex-wrap gap-4">
-          <SingleChallengeCard />
-          <SingleChallengeCard />
-          <SingleChallengeCard />
+          {filterChallengesBySearch.length !== 0 ? (
+            <>
+              <>
+                {applyTheFilters.length !== 0 ? (
+                  <>
+                    {applyTheFilters.map((SingleChallenge, index) => (
+                      <SingleChallengeCard
+                        singleChallenge={SingleChallenge}
+                        key={index}
+                      />
+                    ))}
+                  </>
+                ) : (
+                  <NoChallengesFoundWithFilters />
+                )}
+              </>
+            </>
+          ) : (
+            <NoChallengesFound />
+          )}
         </div>
       ) : (
         <NoChallengesEmptyScreen />
@@ -50,6 +153,50 @@ function NoChallengesEmptyScreen() {
       <button className="bg-gradient-to-r from-red-500 to-pink-600 p-2 rounded-md text-white text-center text-[12px] px-4">
         Start New Challenge
       </button>
+    </div>
+  );
+}
+
+function NoChallengesFound() {
+  const {
+    darkModeObject: { darkMode },
+  } = useAppContext();
+  return (
+    <div
+      className={`${
+        darkMode !== null && darkMode[1].isSelected ? "text-white" : ""
+      } p-1 gap-5 flex flex-col justify-center pt-[113px] pb-8 w-full items-center`}
+    >
+      <SearchOffIcon sx={{ fontSize: 94 }} className="text-slate-400" />
+
+      <div className="">
+        <h3 className="font-semibold text-[14px] mb-1 text-slate-500 text-center">{`No Challenges Found`}</h3>
+        <p className="text-gray-400 w-64 text-center text-[12px]">
+          {`It seems like there are no challenges available at the moment.`}
+        </p>
+      </div>
+    </div>
+  );
+}
+
+function NoChallengesFoundWithFilters() {
+  const {
+    darkModeObject: { darkMode },
+  } = useAppContext();
+  return (
+    <div
+      className={`${
+        darkMode !== null && darkMode[1].isSelected ? "text-white" : ""
+      } p-1 gap-5 flex flex-col justify-center pt-[113px] pb-8 w-full items-center`}
+    >
+      <StyleIcon sx={{ fontSize: 94 }} className="text-slate-400" />
+
+      <div className="">
+        <h3 className="font-semibold text-[14px] mb-1 text-slate-500 text-center">{`No Challenges Found`}</h3>
+        <p className="text-gray-400 w-64 text-center text-[12px]">
+          {`No challenges match the selected tags. Please try selecting different tags.`}
+        </p>
+      </div>
     </div>
   );
 }

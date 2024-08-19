@@ -14,6 +14,7 @@ function StatusDropDown({
     darkModeObject: { darkMode },
     statusArrayObject: { statusArray, setStatusArray },
     statusDropDownPositionsObject: { statusDropDownPositions },
+    filterByStatusObject: { setFilterByStatus },
   } = useAppContext();
 
   const darkModeString =
@@ -24,6 +25,7 @@ function StatusDropDown({
   function handleClickedElement(index: number) {
     const updateStatusArray = statusArray.map((singleItem, i) => {
       if (index === i) {
+        setFilterByStatus(singleItem.name);
         return { ...singleItem, isSelected: true };
       }
 
@@ -59,7 +61,7 @@ function StatusDropDown({
       resetTheFilterButtonsArray();
     }
 
-    if (filterButtons[2].isOpened) {
+    if (filterButtons[3].isOpened) {
       document.addEventListener("mousedown", handleClickOutside);
       // Handle window resize
       window.addEventListener("resize", closeTheDropDown);
@@ -78,7 +80,7 @@ function StatusDropDown({
       ref={menuRef}
       style={{
         top: statusDropDownPositions.top + 49,
-        left: statusDropDownPositions.left,
+        left: statusDropDownPositions.left - 50,
       }}
       className={` ${darkModeString} fixed z-50 py-3 p-2 w-[160px] select-none  shadow-md rounded-lg flex flex-col gap-2`}
     >

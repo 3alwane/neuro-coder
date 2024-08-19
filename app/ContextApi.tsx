@@ -15,6 +15,9 @@ import DarkModeIcon from "@mui/icons-material/DarkMode";
 import ContentArea from "./Components/ContentArea";
 import ChallengesArea from "./ChallengesArea";
 import AchievementsArea from "./AchievementsArea";
+import AllChallenges from "./Components/ChallengesArea/AllChallnges";
+import { Challenge, challenges } from "@/data/AllChallenges";
+import { allTagsData, Tag } from "@/data/AllTags";
 
 //Define the shape of the sidebar menu
 interface SideBarMenuItem {
@@ -118,6 +121,70 @@ interface AppState {
       React.SetStateAction<DifficultyDropDownPosition>
     >;
   };
+
+  tagsDropDownPositionsObject: {
+    tagsDropDownPositions: DifficultyDropDownPosition;
+    setTagsDropDownPositions: React.Dispatch<
+      React.SetStateAction<DifficultyDropDownPosition>
+    >;
+  };
+
+  openTagsWindowObject: {
+    openTagsWindow: boolean;
+    setOpenTagsWindow: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+  allChallengesObject: {
+    allChallenges: Challenge[];
+    setAllChallenges: React.Dispatch<React.SetStateAction<Challenge[]>>;
+  };
+
+  isLoadingObject: {
+    isLoading: boolean;
+    setIsLoading: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+  openChallengeDropDownObject: {
+    openChallengeDropDown: boolean;
+    setOpenChallengeDropDown: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+
+  challengesDropDownPositionsObject: {
+    challengesDropDownPositions: DifficultyDropDownPosition;
+    setChallengesDropDownPositions: React.Dispatch<
+      React.SetStateAction<DifficultyDropDownPosition>
+    >;
+  };
+
+  filterByDifficultyObject: {
+    filterByDifficulty: string;
+    setFilterByDifficulty: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  filterByLanguageObject: {
+    filterByLanguage: string;
+    setFilterByLanguage: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  filterByStatusObject: {
+    filterByStatus: string;
+    setFilterByStatus: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  allTagsObject: {
+    allTags: Tag[];
+    setAllTags: React.Dispatch<React.SetStateAction<Tag[]>>;
+  };
+
+  filterByTagsObject: {
+    filterByTags: string[];
+    setFilterByTags: React.Dispatch<React.SetStateAction<string[]>>;
+  };
+
+  openChallengeWindowObject: {
+    openChallengeWindow: boolean;
+    setOpenChallengeWindow: React.Dispatch<React.SetStateAction<boolean>>;
+  };
 }
 
 // Create a default state
@@ -171,6 +238,65 @@ const defaultState: AppState = {
     statusDropDownPositions: { left: 0, top: 0 },
     setStatusDropDownPositions: () => {},
   },
+
+  tagsDropDownPositionsObject: {
+    tagsDropDownPositions: { left: 0, top: 0 },
+    setTagsDropDownPositions: () => {},
+  },
+
+  openTagsWindowObject: {
+    openTagsWindow: false,
+    setOpenTagsWindow: () => {},
+  },
+
+  allChallengesObject: {
+    allChallenges: [],
+    setAllChallenges: () => {},
+  },
+  isLoadingObject: {
+    isLoading: false,
+    setIsLoading: () => {},
+  },
+
+  openChallengeDropDownObject: {
+    openChallengeDropDown: false,
+    setOpenChallengeDropDown: () => {},
+  },
+
+  challengesDropDownPositionsObject: {
+    challengesDropDownPositions: { left: 0, top: 0 },
+    setChallengesDropDownPositions: () => {},
+  },
+
+  filterByLanguageObject: {
+    filterByLanguage: "",
+    setFilterByLanguage: () => {},
+  },
+
+  filterByDifficultyObject: {
+    filterByDifficulty: "",
+    setFilterByDifficulty: () => {},
+  },
+
+  filterByStatusObject: {
+    filterByStatus: "",
+    setFilterByStatus: () => {},
+  },
+
+  allTagsObject: {
+    allTags: [],
+    setAllTags: () => {},
+  },
+
+  filterByTagsObject: {
+    filterByTags: [],
+    setFilterByTags: () => {},
+  },
+
+  openChallengeWindowObject: {
+    openChallengeWindow: false,
+    setOpenChallengeWindow: () => {},
+  },
 };
 
 // Create the context with default values
@@ -213,8 +339,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [darkMode, setDarkMode] = useState<DarkModeItem[] | null>(null);
   const [isMobileView, setIsMobileView] = useState<boolean>(false);
   const [openSideBar, setOpenSideBar] = useState<boolean>(false);
-  const [openLanguageDropDown, setOpenLanguageDropDown] =
-    useState<boolean>(false);
+
   const [difficultyDropDownPositions, setDifficultyDropDownPositions] =
     useState({
       left: 0,
@@ -222,20 +347,20 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     });
 
   const [difficultyChoices, setDifficultyChoices] = useState([
-    { id: 1, title: "Easy", isSelected: true, textColor: "text-green-600" },
+    { id: 1, title: "Easy", isSelected: false, textColor: "text-green-600" },
     { id: 2, title: "Medium", isSelected: false, textColor: "text-yellow-500" },
     { id: 3, title: "Hard", isSelected: false, textColor: "text-red-500" },
   ]);
 
   //Array of languages
   const [languagesArray, setLanguagesArray] = useState([
-    { id: 1, name: "Javascript", isSelected: true },
+    { id: 1, name: "Javascript", isSelected: false },
     { id: 2, name: "Python", isSelected: false },
     { id: 3, name: "Go", isSelected: false },
   ]);
 
   const [statusArray, setStatusArray] = useState([
-    { id: 1, name: "Solved", isSelected: true },
+    { id: 1, name: "Solved", isSelected: false },
     { id: 2, name: "Unsolved", isSelected: false },
   ]);
 
@@ -247,6 +372,47 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     left: 0,
     top: 0,
   });
+
+  const [tagsDropDownPositions, setTagsDropDownPositions] = useState({
+    left: 0,
+    top: 0,
+  });
+
+  const [openTagsWindow, setOpenTagsWindow] = useState(false);
+  const [allChallenges, setAllChallenges] = useState<Challenge[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [openChallengeDropDown, setOpenChallengeDropDown] = useState(false);
+  const [challengesDropDownPositions, setChallengesDropDownPositions] =
+    useState({
+      left: 0,
+      top: 0,
+    });
+  const [filterByLanguage, setFilterByLanguage] = useState<string>("");
+  const [filterByDifficulty, setFilterByDifficulty] = useState<string>("");
+  const [filterByStatus, setFilterByStatus] = useState<string>("");
+  const [allTags, setAllTags] = useState<Tag[]>([]);
+  const [filterByTags, setFilterByTags] = useState<string[]>([]);
+  const [openChallengeWindow, setOpenChallengeWindow] = useState(false);
+
+  //Simulate the fetching of allChallenges Data from the database
+  useEffect(() => {
+    async function fetchData() {
+      try {
+        //Simulate a network delay
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+        setAllChallenges(challenges);
+        setAllTags(allTagsData);
+      } catch (error) {
+        console.log(error);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchData();
+  }, []);
+
+  console.log(allTags);
 
   //Update the window size
   useEffect(() => {
@@ -365,6 +531,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
   useEffect(() => {
     setOpenSideBar(false);
+    setOpenChallengeDropDown(false);
   }, [sideBarMenuItems]);
 
   return (
@@ -389,6 +556,64 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         statusDropDownPositionsObject: {
           statusDropDownPositions,
           setStatusDropDownPositions,
+        },
+
+        tagsDropDownPositionsObject: {
+          tagsDropDownPositions,
+          setTagsDropDownPositions,
+        },
+
+        openTagsWindowObject: {
+          openTagsWindow,
+          setOpenTagsWindow,
+        },
+
+        allChallengesObject: {
+          allChallenges,
+          setAllChallenges,
+        },
+
+        isLoadingObject: {
+          isLoading,
+          setIsLoading,
+        },
+
+        openChallengeDropDownObject: {
+          openChallengeDropDown,
+          setOpenChallengeDropDown,
+        },
+
+        challengesDropDownPositionsObject: {
+          challengesDropDownPositions,
+          setChallengesDropDownPositions,
+        },
+        filterByDifficultyObject: {
+          filterByDifficulty,
+          setFilterByDifficulty,
+        },
+
+        filterByLanguageObject: {
+          filterByLanguage,
+          setFilterByLanguage,
+        },
+
+        filterByStatusObject: {
+          filterByStatus,
+          setFilterByStatus,
+        },
+
+        allTagsObject: {
+          allTags,
+          setAllTags,
+        },
+        filterByTagsObject: {
+          filterByTags,
+          setFilterByTags,
+        },
+
+        openChallengeWindowObject: {
+          openChallengeWindow,
+          setOpenChallengeWindow,
         },
       }}
     >

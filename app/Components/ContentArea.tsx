@@ -27,6 +27,7 @@ function ContentArea() {
 
       <TopBar />
       <StatisticsBar />
+
       <OnGoingChallenges />
       <Achievements />
     </div>

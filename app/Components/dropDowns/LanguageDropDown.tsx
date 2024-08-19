@@ -6,7 +6,7 @@ import {
   SiReact,
 } from "@icons-pack/react-simple-icons";
 import { useAppContext } from "@/app/ContextApi";
-import { FilterButton } from "@/app/ChallengesArea";
+import { FilterButton, useChallengesAreaContext } from "@/app/ChallengesArea";
 import { LanguageItem } from "@/app/ContextApi";
 function LanguageDropDown({
   filterButtons,
@@ -19,6 +19,7 @@ function LanguageDropDown({
     darkModeObject: { darkMode },
     languagesArrayObject: { languagesArray, setLanguagesArray },
     languagesDropDownPositionsObject: { languagesDropDownPositions },
+    filterByLanguageObject: { filterByLanguage, setFilterByLanguage },
   } = useAppContext();
 
   const darkModeString =
@@ -29,6 +30,7 @@ function LanguageDropDown({
   function handleClickedLanguage(index: number) {
     const copyLanguagesArray = languagesArray.map((singleLanguage, i) => {
       if (index === i) {
+        setFilterByLanguage(singleLanguage.name);
         return { ...singleLanguage, isSelected: true };
       }
       return { ...singleLanguage, isSelected: false };
@@ -45,6 +47,8 @@ function LanguageDropDown({
   }
 
   const menuRef = useRef<HTMLDivElement>(null);
+
+  console.log(filterByLanguage);
 
   useEffect(() => {
     function resetTheFilterButtonsArray() {
@@ -63,7 +67,7 @@ function LanguageDropDown({
       resetTheFilterButtonsArray();
     }
 
-    if (filterButtons[0].isOpened) {
+    if (filterButtons[1].isOpened) {
       document.addEventListener("mousedown", handleClickOutside);
       // Handle window resize
       window.addEventListener("resize", closeTheDropDown);

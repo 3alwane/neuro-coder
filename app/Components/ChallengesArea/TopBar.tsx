@@ -10,6 +10,7 @@ function TopBar() {
     isMobileViewObject: { isMobileView },
     openSideBarObject: { setOpenSideBar, openSideBar },
     hideSideBarObject: { hideSideBar, setHideSideBar },
+    openChallengeWindowObject: { setOpenChallengeWindow },
   } = useAppContext();
 
   function openTheSideBar() {
@@ -48,7 +49,10 @@ function TopBar() {
   function AddChallengeButton() {
     return (
       <div className="flex gap-2 items-center">
-        <button className="bg-gradient-to-r from-red-500 to-pink-600 rounded-md p-[7px] flex gap-1 items-center text-white">
+        <button
+          onClick={() => setOpenChallengeWindow(true)}
+          className="bg-gradient-to-r from-red-500 to-pink-600 rounded-md p-[7px] flex gap-1 items-center text-white"
+        >
           <Add sx={{ fontSize: 19 }} />
           {!isMobileView && <p className="text-sm pr-1">New Challenge</p>}
         </button>
