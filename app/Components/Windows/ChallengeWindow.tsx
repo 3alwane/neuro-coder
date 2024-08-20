@@ -6,26 +6,30 @@ import React, {
   useContext,
   InputHTMLAttributes,
   useRef,
-} from "react";
-import ReactQuill, { ReactQuillProps } from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import AceEditor from "react-ace";
+} from 'react';
 
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/theme-solarized_dark";
-import "ace-builds/src-noconflict/theme-tomorrow";
-import "ace-builds/src-noconflict/ext-language_tools";
-import { useAppContext } from "@/app/ContextApi";
-import CloseIcon from "@mui/icons-material/Close";
-import ChallengeTitle from "./ChallengesWindow/ChallengeTitle";
-import ChallengeInstructions from "./ChallengesWindow/ChallengeInstructions";
+import { useAppContext } from '@/app/ContextApi';
+import CloseIcon from '@mui/icons-material/Close';
+import ChallengeTitle from './ChallengesWindow/ChallengeTitle';
+import ChallengeInstructions from './ChallengesWindow/ChallengeInstructions';
+import { challenges } from '@/data/AllChallenges';
+import LanguageSection from './ChallengesWindow/LanguageSection';
+import DifficultySection from './ChallengesWindow/DifficultySection';
+import TypeSection from './ChallengesWindow/TypeSection';
+import StarterCode from './ChallengesWindow/starterCode';
+import TestCases from './ChallengesWindow/TestCasesSections';
 
 interface ErrorMessageItem {
   id: number;
   inputName: string;
   errorMessage: string;
   show: boolean;
+}
+
+interface TestCase {
+  id: number;
+  input: string;
+  output: string;
 }
 
 interface ChallengeWindowState {
@@ -38,25 +42,76 @@ interface ChallengeWindowState {
     instructions: string;
     setInstructions: React.Dispatch<React.SetStateAction<string>>;
   };
+
+  languageObject: {
+    language: string;
+    setLanguage: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  difficultyObject: {
+    difficulty: string;
+    setDifficulty: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  typeObject: {
+    type: string;
+    setType: React.Dispatch<React.SetStateAction<string>>;
+  };
+
+  starterCodeObject: {
+    starterCode: string;
+    setStarterCode: React.Dispatch<React.SetStateAction<string>>;
+  };
+
   errorMessagesObject: {
     errorMessages: ErrorMessageItem[];
     setErrorMessage: React.Dispatch<React.SetStateAction<ErrorMessageItem[]>>;
   };
+
+  testCasesObject: {
+    testCases: TestCase[];
+    setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
+  };
 }
 const defaultState = {
   inputTitleObject: {
-    title: "",
+    title: '',
     setTitle: () => {},
   },
 
   inputInstructionsObjct: {
-    instructions: "",
+    instructions: '',
     setInstructions: () => {},
+  },
+
+  languageObject: {
+    language: '',
+    setLanguage: () => {},
+  },
+
+  difficultyObject: {
+    difficulty: '',
+    setDifficulty: () => {},
+  },
+
+  typeObject: {
+    type: '',
+    setType: () => {},
+  },
+
+  starterCodeObject: {
+    starterCode: '',
+    setStarterCode: () => {},
   },
 
   errorMessagesObject: {
     errorMessages: [],
     setErrorMessage: () => {},
+  },
+
+  testCasesObject: {
+    testCases: [],
+    setTestCases: () => {},
   },
 };
 const ChallengeWindowContext =
@@ -71,61 +126,184 @@ function ChallengeWindow() {
   const {
     openChallengeWindowObject: { openChallengeWindow },
     darkModeObject: { darkMode },
+    allChallengesObject: { allChallenges, setAllChallenges },
   } = useAppContext();
 
   //Toggle dark mode
   const darkModeWindow =
     darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-800 text-white "
-      : "bg-white border border-slate-50";
+      ? 'bg-slate-800 text-white '
+      : 'bg-white border border-slate-50';
 
   //Variable states of the challenge window form
-  const [title, setTitle] = useState("");
-  const [instructions, setInstructions] = useState("");
-  const [errorMessages, setErrorMessage] = useState<ErrorMessageItem[]>([
-    { id: 1, inputName: "title", errorMessage: "", show: false },
-    { id: 2, inputName: "instructions", errorMessage: "", show: false },
+  const [title, setTitle] = useState('');
+  const [instructions, setInstructions] = useState('');
+  const [language, setLanguage] = useState('');
+  const [difficulty, setDifficulty] = useState('');
+  const [type, setType] = useState('');
+  const [starterCode, setStarterCode] = useState('');
+  const [testCases, setTestCases] = useState([
+    { id: 1, input: '', output: '' },
+    { id: 2, input: '', output: '' },
   ]);
+
+  const [errorMessages, setErrorMessage] = useState<ErrorMessageItem[]>([
+    { id: 1, inputName: 'title', errorMessage: '', show: false },
+    { id: 2, inputName: 'instructions', errorMessage: '', show: false },
+    { id: 3, inputName: 'language', errorMessage: '', show: false },
+    { id: 4, inputName: 'difficulty', errorMessage: '', show: false },
+    { id: 5, inputName: 'type', errorMessage: '', show: false },
+    { id: 6, inputName: 'starterCode', errorMessage: '', show: false },
+    { id: 7, inputName: 'testCases', errorMessage: '', show: false },
+  ]);
+
+  console.log(testCases);
 
   function submitTheChallenge(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     //Check if the input title is empty or not
+    let inputErrorMessage = '';
+    //
     if (title.trim().length === 0) {
+      inputErrorMessage = 'The input title is still empty!';
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === "title") {
+          if (item.inputName === 'title') {
             return {
               ...item,
               show: true,
-              errorMessage: "The input title is still empty!",
+              errorMessage: inputErrorMessage,
             };
           }
 
           return { ...item };
-        })
+        }),
       );
+    } else {
+      //Find if the title already exists in the challenges array
+      const findChallengeTitle = challenges.find(
+        (challenge) => challenge.title.toLowerCase() === title.toLowerCase(),
+      );
+
+      if (findChallengeTitle) {
+        inputErrorMessage = 'The challenge title already exists';
+        setErrorMessage((prevState) =>
+          prevState.map((item) => {
+            if (item.inputName === 'title') {
+              return {
+                ...item,
+                show: true,
+                errorMessage: inputErrorMessage,
+              };
+            }
+
+            return { ...item };
+          }),
+        );
+      }
     }
 
+    //Check if the instructions is empty
     if (isQuillEmpty(instructions)) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === "instructions") {
+          if (item.inputName === 'instructions') {
             return {
               ...item,
               show: true,
-              errorMessage: "The challenges instructions is still empty!",
+              errorMessage: 'The challenges instructions is still empty!',
             };
           }
 
           return { ...item };
-        })
+        }),
       );
     }
+
+    //Check if the language is selected or not
+    if (language.trim().length === 0) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => {
+          if (item.inputName === 'language') {
+            return {
+              ...item,
+              show: true,
+              errorMessage: 'Please selected a language',
+            };
+          }
+          return item;
+        }),
+      );
+    }
+
+    //Check if the difficulty is selected or not
+    if (difficulty.trim().length === 0) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => {
+          if (item.inputName === 'difficulty') {
+            return {
+              ...item,
+              show: true,
+              errorMessage: 'Please selected a difficulty',
+            };
+          }
+          return item;
+        }),
+      );
+    }
+
+    //Check if the type is selected or not
+    if (type.trim().length === 0) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => {
+          if (item.inputName === 'type') {
+            return {
+              ...item,
+              show: true,
+              errorMessage: 'Please selected a type',
+            };
+          }
+          return item;
+        }),
+      );
+    }
+
+    //Check if the starter code is empty or not
+    if (starterCode.trim().length === 0) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => {
+          if (item.inputName === 'starterCode') {
+            return {
+              ...item,
+              show: true,
+              errorMessage: 'The starter code input is still empty!',
+            };
+          }
+          return item;
+        }),
+      );
+    }
+
+    const areAllTestCasesFilled = testCases.every(
+      (testCase) =>
+        testCase.input.trim() !== '' && testCase.output.trim() !== '',
+    );
+
+    console.log(areAllTestCasesFilled);
   }
 
   function isQuillEmpty(value: string) {
-    return value.replace(/<(.|\n)*?>/g, "").trim().length === 0;
+    return value.replace(/<(.|\n)*?>/g, '').trim().length === 0;
   }
+
+  //Reset all show and the errorMessage proprities when the window is opened
+  useEffect(() => {
+    if (openChallengeWindow) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => ({ ...item, show: false, errorMessage: '' })),
+      );
+    }
+  }, [openChallengeWindow]);
 
   return (
     <ChallengeWindowContext.Provider
@@ -133,11 +311,16 @@ function ChallengeWindow() {
         inputTitleObject: { title, setTitle },
         inputInstructionsObjct: { instructions, setInstructions },
         errorMessagesObject: { errorMessages, setErrorMessage },
+        languageObject: { language, setLanguage },
+        typeObject: { type, setType },
+        difficultyObject: { difficulty, setDifficulty },
+        starterCodeObject: { starterCode, setStarterCode },
+        testCasesObject: { testCases, setTestCases },
       }}
     >
       <div
         className={`  ${darkModeWindow} ${
-          openChallengeWindow ? "block" : "hidden"
+          openChallengeWindow ? 'block' : 'hidden'
         } top-4 rounded-lg p-5 absolute   z-[90] w-[80%] max-sm:w-[98%] left-1/2 -translate-x-1/2   shadow-md`}
       >
         {/*the form*/}
@@ -210,75 +393,6 @@ function Header() {
   );
 }
 
-function StarterCode() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-  const [theme, setTheme] = useState("tomorrow");
-
-  const darkModeInput =
-    darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-700 text-white border border-slate-500 "
-      : "bg-white border";
-
-  useEffect(() => {
-    if (darkMode !== null && darkMode[1].isSelected) {
-      setTheme("solarized_dark");
-    } else {
-      setTheme("tomorrow");
-    }
-  }, [darkMode]);
-
-  console.log(theme);
-
-  return (
-    <div className="flex flex-col gap-2 relative">
-      <span className="font-semibold text-[14px] text-gray-600">
-        Starter Code
-      </span>
-      <div className="border rounded-md overflow-hidden mr-5 mt-1">
-        <AceEditor
-          style={{
-            fontFamily: "monospace",
-            fontSize: "14px",
-            backgroundColor:
-              darkMode !== null && darkMode[1].isSelected
-                ? "#334155 "
-                : "white",
-            color:
-              darkMode !== null && darkMode[1].isSelected ? "white" : "black",
-          }}
-          placeholder="Placeholder Text"
-          mode="javascript"
-          theme="tomorrow"
-          name="blah2"
-          lineHeight={19}
-          showPrintMargin={true}
-          showGutter={false}
-          highlightActiveLine={false}
-          editorProps={{ $blockScrolling: true }}
-          setOptions={{
-            enableBasicAutocompletion: true,
-            enableLiveAutocompletion: true,
-            enableSnippets: true,
-            showLineNumbers: true,
-            tabSize: 2,
-          }}
-          fontSize={14}
-          width="100%"
-          height="370px"
-          value={`function onLoad(editor) {
-  console.log("i've loaded");
-}`}
-        />
-      </div>
-
-      {/*Error Message*/}
-      <p className="text-red-500 text-[11px]">The field is sitll empty!</p>
-    </div>
-  );
-}
-
 function TagsSection() {
   return (
     <div className="flex flex-col gap-2 w-1/2">
@@ -287,144 +401,6 @@ function TagsSection() {
         Select Tags
       </div>
       <p className="text-red-500 text-[11px]">Please Select a tags!</p>
-    </div>
-  );
-}
-
-function LanguageSection() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const darkModeInput =
-    darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-700 text-white border border-slate-500 "
-      : "bg-white border";
-
-  return (
-    <div className="flex flex-col gap-2 w-1/2">
-      <span className="font-semibold text-[14px] text-gray-600">Language</span>
-      <select
-        className={` ${darkModeInput} poppins   p-[10px] border rounded-md text-[12px] text-gray-600 pr-[12px]`}
-      >
-        <option value="" disabled selected>
-          Select language
-        </option>
-        <option value="javascript">JavaScript</option>
-        <option value="python">Python</option>
-        <option value="go">Go</option>
-
-        {/* Add more languages as needed */}
-      </select>
-      <p className="text-red-500 text-[11px]">Please Select a language!</p>
-    </div>
-  );
-}
-
-function DifficultySection() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const darkModeColor =
-    darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-700 text-white border border-slate-500 "
-      : "bg-white border";
-
-  return (
-    <div className="flex flex-col gap-2 w-1/2">
-      <span className="font-semibold text-[14px] text-gray-600">
-        Difficulty
-      </span>
-      <select
-        className={` ${darkModeColor}   p-[10px] border rounded-md text-[12px] text-gray-600 pr-[12px]`}
-      >
-        <option value="" disabled selected>
-          Select Difficulty
-        </option>
-        <option value="easy">Easy</option>
-        <option value="medium">Medium</option>
-        <option value="hard">Hard</option>
-      </select>
-      <p className="text-red-500 text-[11px]">Please Select a difficulty!</p>
-    </div>
-  );
-}
-
-function TypeSection() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const darkModeColor =
-    darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-700 text-white border border-slate-500 "
-      : "bg-white border";
-
-  return (
-    <div className="flex flex-col gap-2 w-1/2">
-      <span className="font-semibold text-[14px] text-gray-600">Type</span>
-      <select
-        className={` ${darkModeColor}   p-[10px] border rounded-md text-[12px] text-gray-600 pr-[12px]`}
-      >
-        <option value="" disabled selected>
-          Select Type
-        </option>
-        <option value="algorithm">Algorithm</option>
-        <option value="data-structure">Data Structure</option>
-        <option value="loops">Loops</option>
-        <option value="functions">Functions</option>
-        <option value="arrays">Arrays</option>
-        <option value="conditionals">Conditionals</option>
-        <option value="string-manipulation">String Manipulation</option>
-        {/* Add more types as needed */}
-      </select>
-      <p className="text-red-500 text-[11px]">Please Select a type!</p>
-    </div>
-  );
-}
-
-function TestCases() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const darkModeColor =
-    darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-700 text-white border border-slate-500 "
-      : "bg-white border";
-
-  const testCases = [
-    { id: 1, inputPlaceholder: "Input", outputPlaceholder: "Expected Output" },
-    { id: 2, inputPlaceholder: "Input", outputPlaceholder: "Expected Output" },
-    // Add more test cases as needed
-  ];
-
-  return (
-    <div className="w-full">
-      <span className="font-semibold text-[14px] text-gray-600">
-        Test Cases
-      </span>
-      <div className="flex flex-col gap-3 mt-3">
-        {testCases.map((testCase) => (
-          <div key={testCase.id} className="flex gap-4 items-center">
-            <div className="flex gap-2 items-center w-full">
-              <p className="text-[12px] text-gray-400 w-[80px]">
-                Test Case {testCase.id}:
-              </p>
-              <input
-                className={` ${darkModeColor} outline-none  p-2 rounded-md text-[12px] w-1/3`}
-                placeholder={testCase.inputPlaceholder}
-              />
-              <input
-                className={` ${darkModeColor}  p-2 outline-none rounded-md text-[12px] w-1/3`}
-                placeholder={testCase.outputPlaceholder}
-              />
-            </div>
-          </div>
-        ))}
-      </div>
-      <p className="text-red-500 text-[11px] mt-4">Please Select a type!</p>
     </div>
   );
 }
