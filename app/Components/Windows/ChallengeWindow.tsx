@@ -6,18 +6,20 @@ import React, {
   useContext,
   InputHTMLAttributes,
   useRef,
-} from 'react';
-import ReactQuill, { ReactQuillProps } from 'react-quill';
-import 'react-quill/dist/quill.snow.css';
-import AceEditor from 'react-ace';
+} from "react";
+import ReactQuill, { ReactQuillProps } from "react-quill";
+import "react-quill/dist/quill.snow.css";
+import AceEditor from "react-ace";
 
-import 'ace-builds/src-noconflict/mode-java';
-import 'ace-builds/src-noconflict/theme-github';
-import 'ace-builds/src-noconflict/theme-solarized_dark';
-import 'ace-builds/src-noconflict/theme-tomorrow';
-import 'ace-builds/src-noconflict/ext-language_tools';
-import { useAppContext } from '@/app/ContextApi';
-import CloseIcon from '@mui/icons-material/Close';
+import "ace-builds/src-noconflict/mode-java";
+import "ace-builds/src-noconflict/theme-github";
+import "ace-builds/src-noconflict/theme-solarized_dark";
+import "ace-builds/src-noconflict/theme-tomorrow";
+import "ace-builds/src-noconflict/ext-language_tools";
+import { useAppContext } from "@/app/ContextApi";
+import CloseIcon from "@mui/icons-material/Close";
+import ChallengeTitle from "./ChallengesWindow/ChallengeTitle";
+import ChallengeInstructions from "./ChallengesWindow/ChallengeInstructions";
 
 interface ErrorMessageItem {
   id: number;
@@ -43,12 +45,12 @@ interface ChallengeWindowState {
 }
 const defaultState = {
   inputTitleObject: {
-    title: '',
+    title: "",
     setTitle: () => {},
   },
 
   inputInstructionsObjct: {
-    instructions: '',
+    instructions: "",
     setInstructions: () => {},
   },
 
@@ -74,15 +76,15 @@ function ChallengeWindow() {
   //Toggle dark mode
   const darkModeWindow =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-800 text-white '
-      : 'bg-white border border-slate-50';
+      ? "bg-slate-800 text-white "
+      : "bg-white border border-slate-50";
 
   //Variable states of the challenge window form
-  const [title, setTitle] = useState('');
-  const [instructions, setInstructions] = useState('');
+  const [title, setTitle] = useState("");
+  const [instructions, setInstructions] = useState("");
   const [errorMessages, setErrorMessage] = useState<ErrorMessageItem[]>([
-    { id: 1, inputName: 'title', errorMessage: '', show: false },
-    { id: 2, inputName: 'instructions', errorMessage: '', show: false },
+    { id: 1, inputName: "title", errorMessage: "", show: false },
+    { id: 2, inputName: "instructions", errorMessage: "", show: false },
   ]);
 
   function submitTheChallenge(e: React.FormEvent<HTMLFormElement>) {
@@ -91,38 +93,38 @@ function ChallengeWindow() {
     if (title.trim().length === 0) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'title') {
+          if (item.inputName === "title") {
             return {
               ...item,
               show: true,
-              errorMessage: 'The input title is still empty!',
+              errorMessage: "The input title is still empty!",
             };
           }
 
           return { ...item };
-        }),
+        })
       );
     }
 
     if (isQuillEmpty(instructions)) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'instructions') {
+          if (item.inputName === "instructions") {
             return {
               ...item,
               show: true,
-              errorMessage: 'The challenges instructions is still empty!',
+              errorMessage: "The challenges instructions is still empty!",
             };
           }
 
           return { ...item };
-        }),
+        })
       );
     }
   }
 
   function isQuillEmpty(value: string) {
-    return value.replace(/<(.|\n)*?>/g, '').trim().length === 0;
+    return value.replace(/<(.|\n)*?>/g, "").trim().length === 0;
   }
 
   return (
@@ -135,7 +137,7 @@ function ChallengeWindow() {
     >
       <div
         className={`  ${darkModeWindow} ${
-          openChallengeWindow ? 'block' : 'hidden'
+          openChallengeWindow ? "block" : "hidden"
         } top-4 rounded-lg p-5 absolute   z-[90] w-[80%] max-sm:w-[98%] left-1/2 -translate-x-1/2   shadow-md`}
       >
         {/*the form*/}
@@ -208,146 +210,22 @@ function Header() {
   );
 }
 
-function ChallengeTitle() {
-  //Variables
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const {
-    inputTitleObject: { title, setTitle },
-    errorMessagesObject: { errorMessages, setErrorMessage },
-  } = useChallengeWindowContext();
-
-  const darkModeInput =
-    darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
-
-  //Functions
-  function updateTitle(e: React.ChangeEvent<HTMLInputElement>) {
-    //Update the value in the input
-    setTitle(e.target.value);
-    //When the user types in, hide the error
-    setErrorMessage((prevState) =>
-      prevState.map((item) => {
-        if (item.inputName === 'title') {
-          return { ...item, show: false, errorMessage: '' };
-        }
-        return item;
-      }),
-    );
-  }
-
-  return (
-    <div className="flex flex-col gap-2 relative mt-3">
-      <span className="font-semibold text-[14px] text-gray-600">
-        Challenge Title
-      </span>
-
-      <input
-        type="text"
-        placeholder="Challenge Title..."
-        value={title}
-        name="title"
-        onChange={updateTitle}
-        className={` ${darkModeInput}  w-full p-[11px]  outline-none    text-[12px] rounded-md font-light`}
-      />
-      {/*Error Message*/}
-      {errorMessages[0].show && (
-        <p className="text-red-500 text-[11px]">
-          {errorMessages[0].errorMessage}
-        </p>
-      )}
-    </div>
-  );
-}
-
-function ChallengeInstructions() {
-  const {
-    darkModeObject: { darkMode },
-  } = useAppContext();
-
-  const {
-    inputInstructionsObjct: { instructions, setInstructions },
-    errorMessagesObject: { errorMessages, setErrorMessage },
-  } = useChallengeWindowContext();
-
-  const instructionsInputRef = useRef<ReactQuill>(null);
-
-  const modules = useMemo(
-    () => ({
-      toolbar: [
-        [{ header: [1, 2, 3, 4, 5, 6, false] }],
-        [{ font: [] }],
-        ['bold', 'italic', 'underline', 'strike'],
-        [{ list: 'ordered' }, { list: 'bullet' }],
-        ['clean'],
-      ],
-    }),
-    [],
-  );
-
-  //Functions:
-  function updateInputInstructions(content: string) {
-    //Update the value in the input
-    setInstructions(content);
-    //When the user types in, hide the error
-    setErrorMessage((prevState) =>
-      prevState.map((item) => {
-        if (item.inputName === 'instructions') {
-          return { ...item, show: false, errorMessage: '' };
-        }
-        return item;
-      }),
-    );
-  }
-
-  console.log(instructions);
-
-  return (
-    <div className="flex flex-col gap-2 relative">
-      <span className="font-semibold text-[14px] text-gray-600 ">
-        Challenge Instructions
-      </span>
-
-      <div
-        className={`quill-wrapper rounded-md w-full ${
-          darkMode !== null && darkMode[1].isSelected
-            ? 'dark-mode'
-            : 'light-mode'
-        }`}
-      >
-        <ReactQuill
-          theme="snow"
-          value={instructions}
-          placeholder="Challenge Instructions..."
-          modules={modules}
-          onChange={updateInputInstructions}
-        />
-      </div>
-
-      {/*Error Message*/}
-      {errorMessages[1].show && (
-        <p className="text-red-500 text-[11px]">
-          {errorMessages[1].errorMessage}
-        </p>
-      )}
-    </div>
-  );
-}
-
 function StarterCode() {
   const {
     darkModeObject: { darkMode },
   } = useAppContext();
-  const [theme, setTheme] = useState('tomorrow');
+  const [theme, setTheme] = useState("tomorrow");
+
+  const darkModeInput =
+    darkMode !== null && darkMode[1].isSelected
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   useEffect(() => {
     if (darkMode !== null && darkMode[1].isSelected) {
-      setTheme('solarized_dark');
+      setTheme("solarized_dark");
     } else {
-      setTheme('tomorrow');
+      setTheme("tomorrow");
     }
   }, [darkMode]);
 
@@ -360,11 +238,20 @@ function StarterCode() {
       </span>
       <div className="border rounded-md overflow-hidden mr-5 mt-1">
         <AceEditor
+          style={{
+            fontFamily: "monospace",
+            fontSize: "14px",
+            backgroundColor:
+              darkMode !== null && darkMode[1].isSelected
+                ? "#334155 "
+                : "white",
+            color:
+              darkMode !== null && darkMode[1].isSelected ? "white" : "black",
+          }}
           placeholder="Placeholder Text"
           mode="javascript"
-          theme={theme}
+          theme="tomorrow"
           name="blah2"
-          className=""
           lineHeight={19}
           showPrintMargin={true}
           showGutter={false}
@@ -411,8 +298,8 @@ function LanguageSection() {
 
   const darkModeInput =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   return (
     <div className="flex flex-col gap-2 w-1/2">
@@ -441,8 +328,8 @@ function DifficultySection() {
 
   const darkModeColor =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   return (
     <div className="flex flex-col gap-2 w-1/2">
@@ -471,8 +358,8 @@ function TypeSection() {
 
   const darkModeColor =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   return (
     <div className="flex flex-col gap-2 w-1/2">
@@ -504,12 +391,12 @@ function TestCases() {
 
   const darkModeColor =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   const testCases = [
-    { id: 1, inputPlaceholder: 'Input', outputPlaceholder: 'Expected Output' },
-    { id: 2, inputPlaceholder: 'Input', outputPlaceholder: 'Expected Output' },
+    { id: 1, inputPlaceholder: "Input", outputPlaceholder: "Expected Output" },
+    { id: 2, inputPlaceholder: "Input", outputPlaceholder: "Expected Output" },
     // Add more test cases as needed
   ];
 
