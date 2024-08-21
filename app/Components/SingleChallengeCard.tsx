@@ -1,13 +1,13 @@
-import React, { useRef, MouseEvent } from "react";
-import { useAppContext } from "../ContextApi";
+import React, { useRef, MouseEvent } from 'react';
+import { useAppContext } from '../ContextApi';
 import {
   SiGo,
   SiJavascript,
   SiPython,
   SiReact,
-} from "@icons-pack/react-simple-icons";
-import { Challenge } from "@/data/AllChallenges";
-import { fromTextToIconLanguage } from "../functions/fromTextToIcon";
+} from '@icons-pack/react-simple-icons';
+import { Challenge } from '@/data/AllChallenges';
+import { fromTextToIconLanguage } from '../functions/fromTextToIcon';
 
 function SingleChallengeCard({
   singleChallenge,
@@ -20,23 +20,25 @@ function SingleChallengeCard({
     sideBarMenuItemsObject: { sideBarMenuItems },
     challengesDropDownPositionsObject: { setChallengesDropDownPositions },
     openChallengeDropDownObject: { setOpenChallengeDropDown },
+    //
+    selectedChallengeObject: { selectedChallenge, setSelectedChallenge },
   } = useAppContext();
 
   const threeDotsRef = useRef<HTMLDivElement>(null);
 
-  let difficultyColor = "";
+  let difficultyColor = '';
 
   if (singleChallenge !== null && singleChallenge !== undefined) {
-    if (singleChallenge.difficulty === "easy") {
-      difficultyColor = "bg-green-100 text-green-500";
-    } else if (singleChallenge.difficulty === "medium") {
-      difficultyColor = "bg-yellow-100 text-yellow-500";
+    if (singleChallenge.difficulty === 'easy') {
+      difficultyColor = 'bg-green-100 text-green-500';
+    } else if (singleChallenge.difficulty === 'medium') {
+      difficultyColor = 'bg-yellow-100 text-yellow-500';
     } else {
-      difficultyColor = "bg-red-100 text-red-500";
+      difficultyColor = 'bg-red-100 text-red-500';
     }
   }
   const handleTheClickedThreeDots = (
-    event: React.MouseEvent<HTMLDivElement>
+    event: React.MouseEvent<HTMLDivElement>,
   ) => {
     event.stopPropagation();
 
@@ -47,16 +49,19 @@ function SingleChallengeCard({
     }
 
     setOpenChallengeDropDown(true);
+    setSelectedChallenge(singleChallenge);
   };
+
+  console.log(selectedChallenge);
 
   return (
     <div
       className={` ${
         darkMode !== null && darkMode[1].isSelected
-          ? "text-white bg-slate-800"
-          : "bg-white"
+          ? 'text-white bg-slate-800'
+          : 'bg-white'
       }  rounded-lg p-6 flex flex-col w-[300px] ${
-        sideBarMenuItems[1].isSelected ? "max-sm:w-full" : ""
+        sideBarMenuItems[1].isSelected ? 'max-sm:w-full' : ''
       } `}
     >
       {/*Header*/}
@@ -104,13 +109,13 @@ function SingleChallengeCard({
                 <g id="SVGRepo_bgCarrier" strokeWidth="0"></g>
                 <g id="SVGRepo_tracerCarrier"></g>
                 <g id="SVGRepo_iconCarrier">
-                  {" "}
+                  {' '}
                   <path
                     fillRule="evenodd"
                     clipRule="evenodd"
                     d="M19.7071 6.29289C20.0976 6.68342 20.0976 7.31658 19.7071 7.70711L10.4142 17C9.63316 17.7811 8.36683 17.781 7.58579 17L3.29289 12.7071C2.90237 12.3166 2.90237 11.6834 3.29289 11.2929C3.68342 10.9024 4.31658 10.9024 4.70711 11.2929L9 15.5858L18.2929 6.29289C18.6834 5.90237 19.3166 5.90237 19.7071 6.29289Z"
                     fill="#b8b8b8"
-                  ></path>{" "}
+                  ></path>{' '}
                 </g>
               </svg>
             </div>

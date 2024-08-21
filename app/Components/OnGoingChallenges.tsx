@@ -1,27 +1,27 @@
-import React, { useRef, useState, useEffect, useLayoutEffect } from "react";
+import React, { useRef, useState, useEffect, useLayoutEffect } from 'react';
 import {
   SiGo,
   SiJavascript,
   SiPython,
   SiReact,
-} from "@icons-pack/react-simple-icons";
+} from '@icons-pack/react-simple-icons';
 // Import Swiper React components
-import { Swiper, SwiperSlide } from "swiper/react";
+import { Swiper, SwiperSlide } from 'swiper/react';
 
 // Import Swiper styles
-import "swiper/css";
-import "swiper/css/pagination";
+import 'swiper/css';
+import 'swiper/css/pagination';
 
 // import required modules
-import { FreeMode } from "swiper/modules";
-import { useAppContext } from "../ContextApi";
-import SingleChallengeCard from "./SingleChallengeCard";
-import CircularProgress from "@mui/material/CircularProgress";
-import ChallengeDropDown from "./dropDowns/ChallengeDropDown";
+import { FreeMode } from 'swiper/modules';
+import { useAppContext } from '../ContextApi';
+import SingleChallengeCard from './SingleChallengeCard';
+import CircularProgress from '@mui/material/CircularProgress';
+import ChallengeDropDown from './dropDowns/ChallengeDropDown';
 
 function OnGoingChallenges() {
   const containerRef = useRef<HTMLDivElement | null>(null);
-  const [maxWidth, setMaxWidth] = useState("100%");
+  const [maxWidth, setMaxWidth] = useState('100%');
   const {
     darkModeObject: { darkMode },
     hideSideBarObject: { hideSideBar },
@@ -31,6 +31,7 @@ function OnGoingChallenges() {
       openChallengeDropDown,
       setOpenChallengeDropDown,
     },
+    selectedChallengeObject: { selectedChallenge, setSelectedChallenge },
   } = useAppContext();
 
   const calculateMaxWidth = () => {
@@ -46,33 +47,35 @@ function OnGoingChallenges() {
 
   //Filter out the challenges that there are on going by relying on the isGoing property
   const filterByOnGoing = allChallenges.filter(
-    (SingleChallenge) => SingleChallenge.isOnGoing
+    (SingleChallenge) => SingleChallenge.isOnGoing,
   );
 
   useEffect(() => {
     calculateMaxWidth(); // Initial calculation
 
     // Handle window resize
-    window.addEventListener("resize", calculateMaxWidth);
+    window.addEventListener('resize', calculateMaxWidth);
 
     // Handle zoom
-    window.addEventListener("wheel", calculateMaxWidth, { passive: true });
+    window.addEventListener('wheel', calculateMaxWidth, { passive: true });
 
     // Additional events for different browsers and zoom methods
-    window.addEventListener("touchend", calculateMaxWidth);
-    window.addEventListener("gestureend", calculateMaxWidth);
+    window.addEventListener('touchend', calculateMaxWidth);
+    window.addEventListener('gestureend', calculateMaxWidth);
 
     return () => {
-      window.removeEventListener("resize", calculateMaxWidth);
-      window.removeEventListener("wheel", calculateMaxWidth);
-      window.removeEventListener("touchend", calculateMaxWidth);
-      window.removeEventListener("gestureend", calculateMaxWidth);
+      window.removeEventListener('resize', calculateMaxWidth);
+      window.removeEventListener('wheel', calculateMaxWidth);
+      window.removeEventListener('touchend', calculateMaxWidth);
+      window.removeEventListener('gestureend', calculateMaxWidth);
     };
   }, []);
 
   function handleSwiperClick(e: React.MouseEvent) {
     if (openChallengeDropDown) {
       setOpenChallengeDropDown(false);
+      // set the selected challenge to null when I click on the swiper
+      setSelectedChallenge(null);
     }
   }
 
@@ -83,8 +86,8 @@ function OnGoingChallenges() {
         <span
           className={`font-bold text-[19px] text-gray-900 ${
             darkMode !== null && darkMode[1].isSelected
-              ? "text-white"
-              : "text-gray-900"
+              ? 'text-white'
+              : 'text-gray-900'
           }`}
         >
           On Going Challenges
@@ -93,7 +96,7 @@ function OnGoingChallenges() {
 
       {isLoading ? (
         <div className="w-full  gap-4 items-center justify-center h-[270px] flex flex-col">
-          <CircularProgress sx={{ color: "red" }} />
+          <CircularProgress sx={{ color: 'red' }} />
           <p className="text-[14px] text-slate-500">Loading...</p>
         </div>
       ) : (
@@ -130,7 +133,7 @@ export function OnGoingChallengesEmptyScreen() {
   return (
     <div
       className={`${
-        darkMode !== null && darkMode[1].isSelected ? "text-white" : ""
+        darkMode !== null && darkMode[1].isSelected ? 'text-white' : ''
       } p-1 gap-5 flex flex-col  justify-center pt-[53px] pb-8    items-center`}
     >
       <svg

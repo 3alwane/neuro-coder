@@ -1,15 +1,15 @@
-import { useEffect, useState } from "react";
-import { useChallengeWindowContext } from "../ChallengeWindow";
-import { useAppContext } from "@/app/ContextApi";
-import ReactQuill, { ReactQuillProps } from "react-quill";
-import "react-quill/dist/quill.snow.css";
-import AceEditor from "react-ace";
+import { useEffect, useState } from 'react';
+import { useChallengeWindowContext } from '../ChallengeWindow';
+import { useAppContext } from '@/app/ContextApi';
+import ReactQuill, { ReactQuillProps } from 'react-quill';
+import 'react-quill/dist/quill.snow.css';
+import AceEditor from 'react-ace';
 
-import "ace-builds/src-noconflict/mode-java";
-import "ace-builds/src-noconflict/theme-github";
-import "ace-builds/src-noconflict/theme-solarized_dark";
-import "ace-builds/src-noconflict/theme-tomorrow";
-import "ace-builds/src-noconflict/ext-language_tools";
+import 'ace-builds/src-noconflict/mode-java';
+import 'ace-builds/src-noconflict/theme-github';
+import 'ace-builds/src-noconflict/theme-solarized_dark';
+import 'ace-builds/src-noconflict/theme-tomorrow';
+import 'ace-builds/src-noconflict/ext-language_tools';
 
 export default function StarterCode() {
   const {
@@ -20,6 +20,8 @@ export default function StarterCode() {
   const {
     starterCodeObject: { starterCode, setStarterCode },
     errorMessagesObject: { errorMessages, setErrorMessage },
+    languageObject: { language },
+    inputTitleObject: { title },
   } = useChallengeWindowContext();
 
   function updateStarterCode(e: string) {
@@ -27,17 +29,41 @@ export default function StarterCode() {
     //When the user types in, hide the error
     setErrorMessage((prevState) =>
       prevState.map((item) => {
-        if (item.inputName === "starterCode") {
-          return { ...item, show: false, errorMessage: "" };
+        if (item.inputName === 'starterCode') {
+          return { ...item, show: false, errorMessage: '' };
         }
         return item;
-      })
+      }),
     );
   }
 
+  //Add a function synthax based on the language
+
+  useEffect(() => {
+    let functionBoilerPlate = '';
+
+    switch (language) {
+      case 'javascript':
+        functionBoilerPlate = `function ${title}() {\n  // Your code here\n}`;
+        break;
+      case 'python':
+        functionBoilerPlate = `def ${title}():\n    # Your code here`;
+        break;
+
+      case 'go':
+        functionBoilerPlate = `package main\n\nfunc ${title}() {\n  // Your code here\n}`;
+        break;
+      default:
+        functionBoilerPlate = '';
+        break;
+    }
+
+    setStarterCode(functionBoilerPlate);
+  }, [language, title, setStarterCode]);
+
   useEffect(() => {
     if (openChallengeWindow) {
-      setStarterCode("");
+      setStarterCode('');
     }
   }, [openChallengeWindow]);
 
@@ -49,14 +75,14 @@ export default function StarterCode() {
       <div className="border rounded-md overflow-hidden mr-5 mt-1">
         <AceEditor
           style={{
-            fontFamily: "monospace",
-            fontSize: "14px",
+            fontFamily: 'monospace',
+            fontSize: '14px',
             backgroundColor:
               darkMode !== null && darkMode[1].isSelected
-                ? "#334155 "
-                : "white",
+                ? '#334155 '
+                : 'white',
             color:
-              darkMode !== null && darkMode[1].isSelected ? "white" : "black",
+              darkMode !== null && darkMode[1].isSelected ? 'white' : 'black',
           }}
           onChange={updateStarterCode}
           placeholder="Your starter code..."

@@ -1,23 +1,24 @@
-"use client";
+'use client';
 import React, {
   createContext,
   useState,
   ReactNode,
   useContext,
   useEffect,
-} from "react";
+} from 'react';
 
-import HomeRoundedIcon from "@mui/icons-material/HomeRounded";
-import FlagRoundedIcon from "@mui/icons-material/FlagRounded";
-import EmojiEventsRoundedIcon from "@mui/icons-material/EmojiEventsRounded";
-import LightModeIcon from "@mui/icons-material/LightMode";
-import DarkModeIcon from "@mui/icons-material/DarkMode";
-import ContentArea from "./Components/ContentArea";
-import ChallengesArea from "./ChallengesArea";
-import AchievementsArea from "./AchievementsArea";
-import AllChallenges from "./Components/ChallengesArea/AllChallnges";
-import { Challenge, challenges } from "@/data/AllChallenges";
-import { allTagsData, Tag } from "@/data/AllTags";
+import HomeRoundedIcon from '@mui/icons-material/HomeRounded';
+import FlagRoundedIcon from '@mui/icons-material/FlagRounded';
+import EmojiEventsRoundedIcon from '@mui/icons-material/EmojiEventsRounded';
+import LightModeIcon from '@mui/icons-material/LightMode';
+import DarkModeIcon from '@mui/icons-material/DarkMode';
+import ContentArea from './Components/ContentArea';
+import ChallengesArea from './ChallengesArea';
+import AchievementsArea from './AchievementsArea';
+import AllChallenges from './Components/ChallengesArea/AllChallnges';
+import { Challenge, challenges } from '@/data/AllChallenges';
+import { allTagsData, Tag } from '@/data/AllTags';
+import { fabClasses } from '@mui/material';
 
 //Define the shape of the sidebar menu
 interface SideBarMenuItem {
@@ -185,6 +186,13 @@ interface AppState {
     openChallengeWindow: boolean;
     setOpenChallengeWindow: React.Dispatch<React.SetStateAction<boolean>>;
   };
+
+  selectedChallengeObject: {
+    selectedChallenge: Challenge | null;
+    setSelectedChallenge: React.Dispatch<
+      React.SetStateAction<Challenge | null>
+    >;
+  };
 }
 
 // Create a default state
@@ -269,17 +277,17 @@ const defaultState: AppState = {
   },
 
   filterByLanguageObject: {
-    filterByLanguage: "",
+    filterByLanguage: '',
     setFilterByLanguage: () => {},
   },
 
   filterByDifficultyObject: {
-    filterByDifficulty: "",
+    filterByDifficulty: '',
     setFilterByDifficulty: () => {},
   },
 
   filterByStatusObject: {
-    filterByStatus: "",
+    filterByStatus: '',
     setFilterByStatus: () => {},
   },
 
@@ -296,6 +304,11 @@ const defaultState: AppState = {
   openChallengeWindowObject: {
     openChallengeWindow: false,
     setOpenChallengeWindow: () => {},
+  },
+
+  selectedChallengeObject: {
+    selectedChallenge: null,
+    setSelectedChallenge: () => {},
   },
 };
 
@@ -315,21 +328,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   const [sideBarMenuItems, setSideBarMenuItems] = useState<SideBarMenuItem[]>([
     {
       id: 1,
-      name: "Home",
+      name: 'Home',
       icon: <HomeRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: false,
       component: <ContentArea />,
     },
     {
       id: 2,
-      name: "Challenges",
+      name: 'Challenges',
       icon: <FlagRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: true,
       component: <ChallengesArea />,
     },
     {
       id: 3,
-      name: "Rewards",
+      name: 'Rewards',
       icon: <EmojiEventsRoundedIcon sx={{ fontSize: 20 }} />,
       isSelected: false,
       component: <AchievementsArea />,
@@ -347,21 +360,21 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     });
 
   const [difficultyChoices, setDifficultyChoices] = useState([
-    { id: 1, title: "Easy", isSelected: false, textColor: "text-green-600" },
-    { id: 2, title: "Medium", isSelected: false, textColor: "text-yellow-500" },
-    { id: 3, title: "Hard", isSelected: false, textColor: "text-red-500" },
+    { id: 1, title: 'Easy', isSelected: false, textColor: 'text-green-600' },
+    { id: 2, title: 'Medium', isSelected: false, textColor: 'text-yellow-500' },
+    { id: 3, title: 'Hard', isSelected: false, textColor: 'text-red-500' },
   ]);
 
   //Array of languages
   const [languagesArray, setLanguagesArray] = useState([
-    { id: 1, name: "Javascript", isSelected: false },
-    { id: 2, name: "Python", isSelected: false },
-    { id: 3, name: "Go", isSelected: false },
+    { id: 1, name: 'Javascript', isSelected: false },
+    { id: 2, name: 'Python', isSelected: false },
+    { id: 3, name: 'Go', isSelected: false },
   ]);
 
   const [statusArray, setStatusArray] = useState([
-    { id: 1, name: "Solved", isSelected: false },
-    { id: 2, name: "Unsolved", isSelected: false },
+    { id: 1, name: 'Solved', isSelected: false },
+    { id: 2, name: 'Unsolved', isSelected: false },
   ]);
 
   const [languagesDropDownPositions, setLanguagesDropDownPositions] = useState({
@@ -387,12 +400,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
       left: 0,
       top: 0,
     });
-  const [filterByLanguage, setFilterByLanguage] = useState<string>("");
-  const [filterByDifficulty, setFilterByDifficulty] = useState<string>("");
-  const [filterByStatus, setFilterByStatus] = useState<string>("");
+  const [filterByLanguage, setFilterByLanguage] = useState<string>('');
+  const [filterByDifficulty, setFilterByDifficulty] = useState<string>('');
+  const [filterByStatus, setFilterByStatus] = useState<string>('');
   const [allTags, setAllTags] = useState<Tag[]>([]);
   const [filterByTags, setFilterByTags] = useState<string[]>([]);
-  const [openChallengeWindow, setOpenChallengeWindow] = useState(true);
+  const [openChallengeWindow, setOpenChallengeWindow] = useState(false);
+  const [selectedChallenge, setSelectedChallenge] = useState<Challenge | null>(
+    null,
+  );
 
   //Simulate the fetching of allChallenges Data from the database
   useEffect(() => {
@@ -403,7 +419,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         setAllChallenges(challenges);
         setAllTags(allTagsData);
       } catch (error) {
-        console.log(error);
       } finally {
         setIsLoading(false);
       }
@@ -411,8 +426,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
 
     fetchData();
   }, []);
-
-  console.log(allTags);
 
   //Update the window size
   useEffect(() => {
@@ -425,11 +438,11 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     handleResize();
 
     // Event listener for window resize
-    window.addEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
 
     // Cleanup
     return () => {
-      window.removeEventListener("resize", handleResize);
+      window.removeEventListener('resize', handleResize);
     };
   }, []);
 
@@ -437,14 +450,14 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   useEffect(() => {
     //1- Get the value of is isSideBarHided
     const getIsSideBarHidedValue =
-      window.localStorage.getItem("isSideBarHided");
+      window.localStorage.getItem('isSideBarHided');
 
     if (getIsSideBarHidedValue !== null && isMobileView === false) {
-      if (getIsSideBarHidedValue === "true") {
+      if (getIsSideBarHidedValue === 'true') {
         setHideSideBar(true);
       }
 
-      if (getIsSideBarHidedValue === "false") {
+      if (getIsSideBarHidedValue === 'false') {
         setHideSideBar(false);
       }
     }
@@ -453,7 +466,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   //Intialize the hidesidebar state from the local storage from the
   //the isSideBarHided key if it is not null, otherwise it is going to be false
   useEffect(() => {
-    const savedValue = window.localStorage.getItem("isSideBarHided");
+    const savedValue = window.localStorage.getItem('isSideBarHided');
     setHideSideBar(savedValue !== null ? JSON.parse(savedValue) : false);
   }, []);
 
@@ -462,12 +475,12 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   //do this only if the hideSidebar is boolean
 
   useEffect(() => {
-    if (typeof hideSideBar === "boolean") {
+    if (typeof hideSideBar === 'boolean') {
       //Only update the local storage when the isMobileView is false
       if (isMobileView === false) {
         window.localStorage.setItem(
-          "isSideBarHided",
-          JSON.stringify(hideSideBar)
+          'isSideBarHided',
+          JSON.stringify(hideSideBar),
         );
       }
     }
@@ -479,32 +492,31 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
     const darkModeMenu: DarkModeItem[] = [
       {
         id: 1,
-        name: "Light",
+        name: 'Light',
         isSelected: true,
-        icon: <LightModeIcon fontSize="small" sx={{ fontSize: "12" }} />,
+        icon: <LightModeIcon fontSize="small" sx={{ fontSize: '12' }} />,
       },
       {
         id: 2,
-        name: "Dark",
+        name: 'Dark',
         isSelected: false,
-        icon: <DarkModeIcon fontSize="small" sx={{ fontSize: "12" }} />,
+        icon: <DarkModeIcon fontSize="small" sx={{ fontSize: '12' }} />,
       },
     ];
 
-    const savedValue = window.localStorage.getItem("isDarkMode");
+    const savedValue = window.localStorage.getItem('isDarkMode');
 
     if (savedValue !== null) {
       const darkModeMenuUpdate: DarkModeItem[] = darkModeMenu.map(
         (DarkModeItem) => {
-          if (DarkModeItem.name === "Light") {
-            return { ...DarkModeItem, isSelected: savedValue !== "true" };
-          } else if (DarkModeItem.name === "Dark") {
-            return { ...DarkModeItem, isSelected: savedValue === "true" };
+          if (DarkModeItem.name === 'Light') {
+            return { ...DarkModeItem, isSelected: savedValue !== 'true' };
+          } else if (DarkModeItem.name === 'Dark') {
+            return { ...DarkModeItem, isSelected: savedValue === 'true' };
           }
           return { ...DarkModeItem };
-        }
+        },
       );
-      console.log("darkModeMenuUpdate");
 
       setDarkMode(darkModeMenuUpdate);
     } else {
@@ -515,16 +527,15 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
   //Save the isDarkMode value in the local storage
   useEffect(() => {
     if (Array.isArray(darkMode) && darkMode !== null) {
-      console.log(darkMode);
       const selectedDarkMode = darkMode?.find(
         (darkModeItem) =>
-          darkModeItem.isSelected && darkModeItem.name === "Dark"
+          darkModeItem.isSelected && darkModeItem.name === 'Dark',
       );
 
       if (selectedDarkMode) {
-        window.localStorage.setItem("isDarkMode", "true");
+        window.localStorage.setItem('isDarkMode', 'true');
       } else {
-        window.localStorage.setItem("isDarkMode", "false");
+        window.localStorage.setItem('isDarkMode', 'false');
       }
     }
   }, [darkMode]);
@@ -614,6 +625,10 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({
         openChallengeWindowObject: {
           openChallengeWindow,
           setOpenChallengeWindow,
+        },
+        selectedChallengeObject: {
+          selectedChallenge,
+          setSelectedChallenge,
         },
       }}
     >

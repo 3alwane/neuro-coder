@@ -1,7 +1,7 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useAppContext } from "@/app/ContextApi";
-import EditOutlinedIcon from "@mui/icons-material/EditOutlined";
-import DeleteOutlineOutlinedIcon from "@mui/icons-material/DeleteOutlineOutlined";
+import React, { useState, useRef, useEffect } from 'react';
+import { useAppContext } from '@/app/ContextApi';
+import EditOutlinedIcon from '@mui/icons-material/EditOutlined';
+import DeleteOutlineOutlinedIcon from '@mui/icons-material/DeleteOutlineOutlined';
 
 function ChallengeDropDown() {
   const {
@@ -17,26 +17,29 @@ function ChallengeDropDown() {
     },
 
     sideBarMenuItemsObject: { sideBarMenuItems },
+    selectedChallengeObject: { setSelectedChallenge },
   } = useAppContext();
 
   //Array of languages
   const [options, setOptions] = useState([
-    { id: 1, name: "Edit" },
-    { id: 2, name: "Delete" },
+    { id: 1, name: 'Edit' },
+    { id: 2, name: 'Delete' },
   ]);
 
   const darkModeString =
     darkMode !== null && darkMode[1].isSelected
-      ? "bg-slate-600 text-white "
-      : "bg-white  border border-slate-50";
+      ? 'bg-slate-600 text-white '
+      : 'bg-white  border border-slate-50';
 
-  const toggleDropDown = openChallengeDropDown ? "fixed" : "hidden";
+  const toggleDropDown = openChallengeDropDown ? 'fixed' : 'hidden';
 
   const menuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     function closeDropDown() {
       setOpenChallengeDropDown(false);
+      //Set the selected challenge to null
+      setSelectedChallenge(null);
     }
 
     function handleClickOutside(event: MouseEvent) {
@@ -50,17 +53,17 @@ function ChallengeDropDown() {
     }
 
     if (openChallengeDropDown) {
-      document.addEventListener("mousedown", handleClickOutside);
+      document.addEventListener('mousedown', handleClickOutside);
       // Handle window resize
-      window.addEventListener("resize", closeDropDown);
+      window.addEventListener('resize', closeDropDown);
     } else {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("resize", closeDropDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', closeDropDown);
     }
 
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      window.removeEventListener("resize", closeDropDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', closeDropDown);
     };
   }, [openChallengeDropDown, setOpenChallengeDropDown]);
 
@@ -78,8 +81,8 @@ function ChallengeDropDown() {
           key={index}
           className={`p-2 px-3 flex  rounded-md gap-2 items-center ${
             darkMode !== null && darkMode[1].isSelected
-              ? "hover:bg-slate-700"
-              : "hover:bg-slate-100"
+              ? 'hover:bg-slate-700'
+              : 'hover:bg-slate-100'
           } cursor-pointer `}
         >
           <div className="">
