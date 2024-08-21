@@ -6,13 +6,14 @@ import React, {
   useContext,
   InputHTMLAttributes,
   useRef,
-} from 'react';
-import { useChallengeWindowContext } from '../ChallengeWindow';
-import { useAppContext } from '@/app/ContextApi';
+} from "react";
+import { useChallengeWindowContext } from "../ChallengeWindow";
+import { useAppContext } from "@/app/ContextApi";
 
 export default function LanguageSection() {
   const {
     darkModeObject: { darkMode },
+    openChallengeWindowObject: { openChallengeWindow, setOpenChallengeWindow },
   } = useAppContext();
 
   const {
@@ -22,21 +23,27 @@ export default function LanguageSection() {
 
   const darkModeInput =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   function updateLanguage(e: React.ChangeEvent<HTMLSelectElement>) {
     setLanguage(e.target.value);
     //When the user selects, hide the error
     setErrorMessage((prevState) =>
       prevState.map((item) => {
-        if (item.inputName === 'language') {
-          return { ...item, show: false, errorMessage: '' };
+        if (item.inputName === "language") {
+          return { ...item, show: false, errorMessage: "" };
         }
         return item;
-      }),
+      })
     );
   }
+
+  useEffect(() => {
+    if (openChallengeWindow) {
+      setLanguage("");
+    }
+  }, [openChallengeWindow]);
 
   return (
     <div className="flex flex-col gap-2 w-1/2">
@@ -46,7 +53,7 @@ export default function LanguageSection() {
         onChange={updateLanguage}
         className={` ${darkModeInput} poppins   p-[10px] border rounded-md text-[12px] text-gray-600 pr-[12px]`}
       >
-        <option value="" disabled selected>
+        <option value="" disabled>
           Select language
         </option>
         <option value="javascript">JavaScript</option>

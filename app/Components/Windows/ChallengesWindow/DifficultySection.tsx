@@ -1,9 +1,11 @@
-import { useAppContext } from '@/app/ContextApi';
-import { useChallengeWindowContext } from '../ChallengeWindow';
+import { useAppContext } from "@/app/ContextApi";
+import { useChallengeWindowContext } from "../ChallengeWindow";
+import { useEffect } from "react";
 
 export default function DifficultySection() {
   const {
     darkModeObject: { darkMode },
+    openChallengeWindowObject: { openChallengeWindow, setOpenChallengeWindow },
   } = useAppContext();
 
   const {
@@ -13,21 +15,27 @@ export default function DifficultySection() {
 
   const darkModeColor =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-700 text-white border border-slate-500 '
-      : 'bg-white border';
+      ? "bg-slate-700 text-white border border-slate-500 "
+      : "bg-white border";
 
   function updateDifficulty(e: React.ChangeEvent<HTMLSelectElement>) {
     setDifficulty(e.target.value);
     //When the user selects, hide the error
     setErrorMessage((prevState) =>
       prevState.map((item) => {
-        if (item.inputName === 'difficulty') {
-          return { ...item, show: false, errorMessage: '' };
+        if (item.inputName === "difficulty") {
+          return { ...item, show: false, errorMessage: "" };
         }
         return item;
-      }),
+      })
     );
   }
+
+  useEffect(() => {
+    if (openChallengeWindow) {
+      setDifficulty("");
+    }
+  }, [openChallengeWindow]);
 
   return (
     <div className="flex flex-col gap-2 w-1/2">

@@ -1,3 +1,5 @@
+"use client";
+
 import React, {
   createContext,
   useMemo,
@@ -6,18 +8,20 @@ import React, {
   useContext,
   InputHTMLAttributes,
   useRef,
-} from 'react';
-
-import { useAppContext } from '@/app/ContextApi';
-import CloseIcon from '@mui/icons-material/Close';
-import ChallengeTitle from './ChallengesWindow/ChallengeTitle';
-import ChallengeInstructions from './ChallengesWindow/ChallengeInstructions';
-import { challenges } from '@/data/AllChallenges';
-import LanguageSection from './ChallengesWindow/LanguageSection';
-import DifficultySection from './ChallengesWindow/DifficultySection';
-import TypeSection from './ChallengesWindow/TypeSection';
-import StarterCode from './ChallengesWindow/starterCode';
-import TestCases from './ChallengesWindow/TestCasesSections';
+} from "react";
+import { v4 as uuidv4 } from "uuid";
+import { useAppContext } from "@/app/ContextApi";
+import CloseIcon from "@mui/icons-material/Close";
+import ChallengeTitle from "./ChallengesWindow/ChallengeTitle";
+import ChallengeInstructions from "./ChallengesWindow/ChallengeInstructions";
+import { Challenge, challenges } from "@/data/AllChallenges";
+import LanguageSection from "./ChallengesWindow/LanguageSection";
+import DifficultySection from "./ChallengesWindow/DifficultySection";
+import TypeSection from "./ChallengesWindow/TypeSection";
+import StarterCode from "./ChallengesWindow/starterCode";
+import TestCases from "./ChallengesWindow/TestCasesSections";
+import TagsSelectionDropDown from "./ChallengesWindow/TagsSelectionDropDown";
+import TagsSection from "./ChallengesWindow/TagsSection";
 
 interface ErrorMessageItem {
   id: number;
@@ -27,7 +31,7 @@ interface ErrorMessageItem {
 }
 
 interface TestCase {
-  id: number;
+  _id: string;
   input: string;
   output: string;
 }
@@ -72,35 +76,51 @@ interface ChallengeWindowState {
     testCases: TestCase[];
     setTestCases: React.Dispatch<React.SetStateAction<TestCase[]>>;
   };
+
+  openSelectedTagDropDownObject: {
+    openSelectedTagDropDown: boolean;
+    setOpenSelectedTagDropDown: React.Dispatch<React.SetStateAction<boolean>>;
+  };
+  tagsSelectionDropDownPositionsObject: {
+    tagsDropDownPositions: { top: number; width: number };
+    setTagsDropDownPositions: React.Dispatch<
+      React.SetStateAction<{ top: number; width: number }>
+    >;
+  };
+
+  selectedTagsObject: {
+    selectedTags: string[];
+    setSelectedTags: React.Dispatch<React.SetStateAction<string[]>>;
+  };
 }
 const defaultState = {
   inputTitleObject: {
-    title: '',
+    title: "",
     setTitle: () => {},
   },
 
   inputInstructionsObjct: {
-    instructions: '',
+    instructions: "",
     setInstructions: () => {},
   },
 
   languageObject: {
-    language: '',
+    language: "",
     setLanguage: () => {},
   },
 
   difficultyObject: {
-    difficulty: '',
+    difficulty: "",
     setDifficulty: () => {},
   },
 
   typeObject: {
-    type: '',
+    type: "",
     setType: () => {},
   },
 
   starterCodeObject: {
-    starterCode: '',
+    starterCode: "",
     setStarterCode: () => {},
   },
 
@@ -113,6 +133,21 @@ const defaultState = {
     testCases: [],
     setTestCases: () => {},
   },
+
+  openSelectedTagDropDownObject: {
+    openSelectedTagDropDown: false,
+    setOpenSelectedTagDropDown: () => {},
+  },
+
+  tagsSelectionDropDownPositionsObject: {
+    tagsDropDownPositions: { top: 0, width: 0 },
+    setTagsDropDownPositions: () => {},
+  },
+
+  selectedTagsObject: {
+    selectedTags: [],
+    setSelectedTags: () => {},
+  },
 };
 const ChallengeWindowContext =
   createContext<ChallengeWindowState>(defaultState);
@@ -124,7 +159,7 @@ export const useChallengeWindowContext = () =>
 function ChallengeWindow() {
   //Get the variable states from the context API
   const {
-    openChallengeWindowObject: { openChallengeWindow },
+    openChallengeWindowObject: { openChallengeWindow, setOpenChallengeWindow },
     darkModeObject: { darkMode },
     allChallengesObject: { allChallenges, setAllChallenges },
   } = useAppContext();
@@ -132,43 +167,51 @@ function ChallengeWindow() {
   //Toggle dark mode
   const darkModeWindow =
     darkMode !== null && darkMode[1].isSelected
-      ? 'bg-slate-800 text-white '
-      : 'bg-white border border-slate-50';
+      ? "bg-slate-800 text-white "
+      : "bg-white border border-slate-50";
 
   //Variable states of the challenge window form
-  const [title, setTitle] = useState('');
-  const [instructions, setInstructions] = useState('');
-  const [language, setLanguage] = useState('');
-  const [difficulty, setDifficulty] = useState('');
-  const [type, setType] = useState('');
-  const [starterCode, setStarterCode] = useState('');
+  const [title, setTitle] = useState("");
+  const [instructions, setInstructions] = useState("");
+  const [language, setLanguage] = useState("");
+  const [difficulty, setDifficulty] = useState("");
+  const [type, setType] = useState("");
+  const [starterCode, setStarterCode] = useState("");
   const [testCases, setTestCases] = useState([
-    { id: 1, input: '', output: '' },
-    { id: 2, input: '', output: '' },
+    { _id: "1", input: "", output: "" },
+    { _id: "2", input: "", output: "" },
   ]);
 
   const [errorMessages, setErrorMessage] = useState<ErrorMessageItem[]>([
-    { id: 1, inputName: 'title', errorMessage: '', show: false },
-    { id: 2, inputName: 'instructions', errorMessage: '', show: false },
-    { id: 3, inputName: 'language', errorMessage: '', show: false },
-    { id: 4, inputName: 'difficulty', errorMessage: '', show: false },
-    { id: 5, inputName: 'type', errorMessage: '', show: false },
-    { id: 6, inputName: 'starterCode', errorMessage: '', show: false },
-    { id: 7, inputName: 'testCases', errorMessage: '', show: false },
+    { id: 1, inputName: "title", errorMessage: "", show: false },
+    { id: 2, inputName: "instructions", errorMessage: "", show: false },
+    { id: 3, inputName: "language", errorMessage: "", show: false },
+    { id: 4, inputName: "difficulty", errorMessage: "", show: false },
+    { id: 5, inputName: "type", errorMessage: "", show: false },
+    { id: 6, inputName: "starterCode", errorMessage: "", show: false },
+    { id: 7, inputName: "testCases", errorMessage: "", show: false },
   ]);
 
-  console.log(testCases);
+  const [openSelectedTagDropDown, setOpenSelectedTagDropDown] = useState(false);
+  const [tagsDropDownPositions, setTagsDropDownPositions] = useState({
+    top: 0,
+    width: 0,
+  });
 
+  const [selectedTags, setSelectedTags] = useState<string[]>([]);
+  const [clickedButton, setClickedButton] = useState(false);
+
+  //Function to submit the challenge
   function submitTheChallenge(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     //Check if the input title is empty or not
-    let inputErrorMessage = '';
+    let inputErrorMessage = "";
     //
     if (title.trim().length === 0) {
-      inputErrorMessage = 'The input title is still empty!';
+      inputErrorMessage = "The input title is still empty!";
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'title') {
+          if (item.inputName === "title") {
             return {
               ...item,
               show: true,
@@ -177,19 +220,21 @@ function ChallengeWindow() {
           }
 
           return { ...item };
-        }),
+        })
       );
     } else {
       //Find if the title already exists in the challenges array
-      const findChallengeTitle = challenges.find(
-        (challenge) => challenge.title.toLowerCase() === title.toLowerCase(),
+      const findChallengeTitle = allChallenges.find(
+        (challenge) => challenge.title.toLowerCase() === title.toLowerCase()
       );
 
+      console.log(challenges);
+
       if (findChallengeTitle) {
-        inputErrorMessage = 'The challenge title already exists';
+        inputErrorMessage = "The challenge title already exists";
         setErrorMessage((prevState) =>
           prevState.map((item) => {
-            if (item.inputName === 'title') {
+            if (item.inputName === "title") {
               return {
                 ...item,
                 show: true,
@@ -198,7 +243,7 @@ function ChallengeWindow() {
             }
 
             return { ...item };
-          }),
+          })
         );
       }
     }
@@ -207,16 +252,16 @@ function ChallengeWindow() {
     if (isQuillEmpty(instructions)) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'instructions') {
+          if (item.inputName === "instructions") {
             return {
               ...item,
               show: true,
-              errorMessage: 'The challenges instructions is still empty!',
+              errorMessage: "The challenges instructions is still empty!",
             };
           }
 
           return { ...item };
-        }),
+        })
       );
     }
 
@@ -224,15 +269,15 @@ function ChallengeWindow() {
     if (language.trim().length === 0) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'language') {
+          if (item.inputName === "language") {
             return {
               ...item,
               show: true,
-              errorMessage: 'Please selected a language',
+              errorMessage: "Please select a language!",
             };
           }
           return item;
-        }),
+        })
       );
     }
 
@@ -240,15 +285,15 @@ function ChallengeWindow() {
     if (difficulty.trim().length === 0) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'difficulty') {
+          if (item.inputName === "difficulty") {
             return {
               ...item,
               show: true,
-              errorMessage: 'Please selected a difficulty',
+              errorMessage: "Please selected a difficulty",
             };
           }
           return item;
-        }),
+        })
       );
     }
 
@@ -256,15 +301,15 @@ function ChallengeWindow() {
     if (type.trim().length === 0) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'type') {
+          if (item.inputName === "type") {
             return {
               ...item,
               show: true,
-              errorMessage: 'Please selected a type',
+              errorMessage: "Please selected a type",
             };
           }
           return item;
-        }),
+        })
       );
     }
 
@@ -272,35 +317,94 @@ function ChallengeWindow() {
     if (starterCode.trim().length === 0) {
       setErrorMessage((prevState) =>
         prevState.map((item) => {
-          if (item.inputName === 'starterCode') {
+          if (item.inputName === "starterCode") {
             return {
               ...item,
               show: true,
-              errorMessage: 'The starter code input is still empty!',
+              errorMessage: "The starter code input is still empty!",
             };
           }
           return item;
-        }),
+        })
       );
     }
 
     const areAllTestCasesFilled = testCases.every(
       (testCase) =>
-        testCase.input.trim() !== '' && testCase.output.trim() !== '',
+        testCase.input.trim() !== "" && testCase.output.trim() !== ""
     );
 
-    console.log(areAllTestCasesFilled);
+    if (!areAllTestCasesFilled) {
+      setErrorMessage((prevState) =>
+        prevState.map((item) => {
+          if (item.inputName === "testCases") {
+            return {
+              ...item,
+              show: true,
+              errorMessage: "Please fill in all test cases",
+            };
+          }
+          return item;
+        })
+      );
+    }
+    setClickedButton(true);
   }
+
+  useEffect(() => {
+    if (clickedButton) {
+      // Check if there are any validation errors
+      const hasValidationErrors = errorMessages.some((msg) => msg.show);
+      if (!hasValidationErrors && openChallengeWindow === true) {
+        addNewChallenge(allChallenges, setAllChallenges);
+      }
+    }
+    setClickedButton(false);
+    console.log(errorMessages);
+  }, [clickedButton]);
+
+  function addNewChallenge(
+    allChallenges: Challenge[],
+    setAllChallenges: React.Dispatch<React.SetStateAction<Challenge[]>>
+  ) {
+    const newChallenge: Challenge = {
+      _id: uuidv4(),
+
+      title,
+      instructions,
+      description:
+        instructions.length < 40
+          ? instructions.slice(0, 40)
+          : instructions.slice(0, 40) + "...",
+      language,
+      difficulty,
+      type,
+      starterCode,
+      testCases,
+      tags: selectedTags,
+      isOnGoing: false,
+      isSolved: false,
+    };
+
+    setAllChallenges([...allChallenges, newChallenge]);
+    setOpenChallengeWindow(false);
+  }
+
+  useEffect(() => {
+    setInstructions("");
+  }, [openChallengeWindow]);
+
+  console.log(instructions);
 
   function isQuillEmpty(value: string) {
-    return value.replace(/<(.|\n)*?>/g, '').trim().length === 0;
+    return value.replace(/<(.|\n)*?>/g, "").trim().length === 0;
   }
-
+  const windowRef = useRef<HTMLDivElement>(null);
   //Reset all show and the errorMessage proprities when the window is opened
   useEffect(() => {
     if (openChallengeWindow) {
       setErrorMessage((prevState) =>
-        prevState.map((item) => ({ ...item, show: false, errorMessage: '' })),
+        prevState.map((item) => ({ ...item, show: false, errorMessage: "" }))
       );
     }
   }, [openChallengeWindow]);
@@ -316,13 +420,24 @@ function ChallengeWindow() {
         difficultyObject: { difficulty, setDifficulty },
         starterCodeObject: { starterCode, setStarterCode },
         testCasesObject: { testCases, setTestCases },
+        openSelectedTagDropDownObject: {
+          openSelectedTagDropDown,
+          setOpenSelectedTagDropDown,
+        },
+        tagsSelectionDropDownPositionsObject: {
+          tagsDropDownPositions,
+          setTagsDropDownPositions,
+        },
+        selectedTagsObject: { selectedTags, setSelectedTags },
       }}
     >
       <div
+        ref={windowRef}
         className={`  ${darkModeWindow} ${
-          openChallengeWindow ? 'block' : 'hidden'
+          openChallengeWindow ? "block" : "hidden"
         } top-4 rounded-lg p-5 absolute   z-[90] w-[80%] max-sm:w-[98%] left-1/2 -translate-x-1/2   shadow-md`}
       >
+        <TagsSelectionDropDown />
         {/*the form*/}
         <form onSubmit={submitTheChallenge}>
           <div className="flex max-sm:flex-col  gap-8 m-[10px]  ">
@@ -337,7 +452,7 @@ function ChallengeWindow() {
                   <TagsSection />
                   <LanguageSection />
                 </div>
-                <div className="flex mt-2  gap-2">
+                <div className="flex mt-4  gap-2">
                   <DifficultySection />
                   <TypeSection />
                 </div>
@@ -389,18 +504,6 @@ function Header() {
         sx={{ fontSize: 18 }}
         className="text-gray-400 cursor-pointer"
       />
-    </div>
-  );
-}
-
-function TagsSection() {
-  return (
-    <div className="flex flex-col gap-2 w-1/2">
-      <span className="font-semibold text-[14px] text-gray-600">Tags</span>
-      <div className="p-[10px] border rounded-md text-[12px] text-gray-400 pr-[12px] ">
-        Select Tags
-      </div>
-      <p className="text-red-500 text-[11px]">Please Select a tags!</p>
     </div>
   );
 }

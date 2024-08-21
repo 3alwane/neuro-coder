@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 export interface TestCase {
   _id: string;
   input: string;
-  expected: string;
+  output: string;
 }
 
 export interface Challenge {
@@ -17,7 +17,7 @@ export interface Challenge {
   language: string;
   testCases: TestCase[];
   tags: string[];
-  difficulty: "easy" | "medium" | "hard";
+  difficulty: string;
   type: string;
 }
 
@@ -90,7 +90,7 @@ export const challenges: Challenge[] = [
       { _id: uuidv4(), input: "15", expected: "'FizzBuzz'" },
       { _id: uuidv4(), input: "9", expected: "'Fizz'" },
     ],
-    tags: ["loop", "math"],
+    tags: [],
     difficulty: "easy",
     type: "logic",
   },
